@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized. Host role required." }, { status: 401 });
     }
 
-    const { title, brand, model, type, pricePerDay, location, specs, images } = await req.json();
+    const { title, brand, model, type, pricePerDay, location, specs, images, documents } = await req.json();
 
     if (!title || !brand || !model || !type || !pricePerDay || !location) {
       return NextResponse.json({ error: "Missing required vehicle details." }, { status: 400 });
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       owner: session.user.id,
       availability: true,
       specs: specs || {},
+      documents: documents || { rcUrl: "", insuranceUrl: "" },
     });
 
     return NextResponse.json({

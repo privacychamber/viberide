@@ -65,6 +65,12 @@ export async function GET() {
         ],
         owner: owner1._id,
         availability: true,
+        status: "approved" as const,
+        featured: true,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           engineCc: 450,
           fuelType: "Petrol" as const,
@@ -85,6 +91,12 @@ export async function GET() {
         ],
         owner: owner2._id,
         availability: true,
+        status: "approved" as const,
+        featured: true,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           engineCc: 110,
           fuelType: "Petrol" as const,
@@ -105,6 +117,11 @@ export async function GET() {
         ],
         owner: owner1._id,
         availability: true,
+        status: "approved" as const,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           engineCc: 373,
           fuelType: "Petrol" as const,
@@ -125,6 +142,12 @@ export async function GET() {
         ],
         owner: owner2._id,
         availability: true,
+        status: "approved" as const,
+        featured: true,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           engineCc: 2184,
           fuelType: "Diesel" as const,
@@ -134,7 +157,7 @@ export async function GET() {
         },
       },
       {
-        title: "Suzuki Access 125 SE",
+        title: "Suzuki Access 125 SE (Awaiting Review)",
         type: "scooter" as const,
         brand: "Suzuki",
         model: "Access 125",
@@ -145,6 +168,11 @@ export async function GET() {
         ],
         owner: owner1._id,
         availability: true,
+        status: "pending" as const,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           engineCc: 124,
           fuelType: "Petrol" as const,
@@ -154,7 +182,7 @@ export async function GET() {
         },
       },
       {
-        title: "Ather 450X Gen 3 (Electric)",
+        title: "Ather 450X Gen 3 (Awaiting Review)",
         type: "scooter" as const,
         brand: "Ather",
         model: "450X",
@@ -165,6 +193,11 @@ export async function GET() {
         ],
         owner: owner2._id,
         availability: true,
+        status: "pending" as const,
+        documents: {
+          rcUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        },
         specs: {
           fuelType: "Electric" as const,
           transmission: "Automatic" as const,

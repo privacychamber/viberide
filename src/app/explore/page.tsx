@@ -101,8 +101,8 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   try {
     await dbConnect();
 
-    // Build DB Query
-    const dbQuery: any = {};
+    // Build DB Query - only show approved vehicles
+    const dbQuery: any = { status: "approved" };
     if (type) dbQuery.type = type;
     if (location) dbQuery.location = location;
     if (transmission) dbQuery["specs.transmission"] = transmission;

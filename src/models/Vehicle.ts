@@ -11,6 +11,13 @@ export interface IVehicle {
   owner: mongoose.Types.ObjectId;
   availability: boolean;
   blockedDates: Date[];
+  status: "pending" | "approved" | "rejected";
+  featured: boolean;
+  flagged: boolean;
+  documents?: {
+    rcUrl?: string;
+    insuranceUrl?: string;
+  };
   specs: {
     engineCc?: number;
     fuelType?: "Petrol" | "Diesel" | "Electric";
@@ -37,6 +44,17 @@ const VehicleSchema: Schema<IVehicle> = new Schema(
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     availability: { type: Boolean, default: true },
     blockedDates: { type: [Date], default: [] },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    featured: { type: Boolean, default: false },
+    flagged: { type: Boolean, default: false },
+    documents: {
+      rcUrl: { type: String, default: "" },
+      insuranceUrl: { type: String, default: "" },
+    },
     specs: {
       engineCc: { type: Number },
       fuelType: {

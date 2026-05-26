@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { MapPin, Fuel, ShieldAlert, Zap, Compass } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { MapPin, Fuel, ShieldAlert, Zap, Compass, Heart } from "lucide-react";
 
 export interface VehicleProp {
   _id: string;
@@ -23,6 +24,44 @@ export interface VehicleProp {
 }
 
 export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
+  const { data: session } = useSession();
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    // Read from localStorage cache for instant UI feedback
+    const cache = JSON.parse(localStorage.getItem("viberide_wishlist") || "[]");
+    setSaved(cache.includes(vehicle._id));
+  }, [vehicle._id]);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session) {
+      alert("Please log in to save vehicles to your wishlist.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/vehicles/${vehicle._id}/wishlist`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSaved(data.isSaved);
+        const cache = JSON.parse(localStorage.getItem("viberide_wishlist") || "[]");
+        if (data.isSaved) {
+          if (!cache.includes(vehicle._id)) cache.push(vehicle._id);
+        } else {
+          const idx = cache.indexOf(vehicle._id);
+          if (idx > -1) cache.splice(idx, 1);
+        }
+        localStorage.setItem("viberide_wishlist", JSON.stringify(cache));
+      }
+    } catch (error) {
+      console.error("Wishlist toggle error:", error);
+    }
+  };
+
   // Use a default image if no images are provided
   const imageUrl =
     vehicle.images && vehicle.images.length > 0
@@ -42,9 +81,17 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
         <div className="absolute top-3 left-3 bg-mountain-black/80 backdrop-blur-md text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full text-sunset-orange border border-white/10">
           {vehicle.type}
         </div>
+        {/* Wishlist Heart Icon */}
+        <button
+          onClick={handleWishlistToggle}
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-mountain-black/80 backdrop-blur-md border border-white/10 text-gray-400 hover:text-rose-500 hover:scale-110 transition-all cursor-pointer z-10"
+          title={saved ? "Remove from Wishlist" : "Save to Wishlist"}
+        >
+          <Heart className={`w-4 h-4 ${saved ? "fill-rose-500 text-rose-500" : ""}`} />
+        </button>
         {/* Delivery Badge */}
         {vehicle.specs.deliveryAvailable && (
-          <div className="absolute top-3 right-3 bg-forest-green-dark/95 backdrop-blur-md text-[10px] font-bold px-2.5 py-1 rounded-full text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+          <div className="absolute bottom-3 left-3 bg-forest-green-dark/95 backdrop-blur-md text-[10px] font-bold px-2.5 py-1 rounded-full text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
             <Zap className="w-3 h-3" />
             Delivery
           </div>

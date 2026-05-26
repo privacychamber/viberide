@@ -14,8 +14,11 @@ export async function GET() {
 
     await dbConnect();
 
-    // 1. Fetch verification queue
+    // 1. Fetch queues and lists
     const usersQueue = await User.find({ "license.status": "pending" }).lean();
+    const vehiclesQueue = await Vehicle.find({ status: "pending" }).populate("owner", "name phone").lean();
+    const allVehicles = await Vehicle.find({}).populate("owner", "name phone").sort({ createdAt: -1 }).lean();
+    const allUsers = await User.find({}).sort({ role: 1, name: 1 }).lean();
 
     // 2. Compute statistics
     const totalUsers = await User.countDocuments({});
@@ -31,6 +34,18 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       usersQueue: usersQueue.map((u) => ({
+        ...u,
+        _id: u._id.toString(),
+      })),
+      vehiclesQueue: vehiclesQueue.map((v) => ({
+        ...v,
+        _id: v._id.toString(),
+      })),
+      allVehicles: allVehicles.map((v) => ({
+        ...v,
+        _id: v._id.toString(),
+      })),
+      allUsers: allUsers.map((u) => ({
         ...u,
         _id: u._id.toString(),
       })),

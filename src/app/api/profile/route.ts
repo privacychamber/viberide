@@ -14,8 +14,8 @@ export async function GET() {
 
     await dbConnect();
 
-    // 1. Fetch User details
-    const user = await User.findById(session.user.id).lean();
+    // 1. Fetch User details with wishlist populated
+    const user = await User.findById(session.user.id).populate("wishlist").lean();
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

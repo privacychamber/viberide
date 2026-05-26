@@ -15,10 +15,11 @@ export async function PATCH(
 
     const resolvedParams = await params;
     const userId = resolvedParams.id;
-    const { action } = await req.json();
+    const body = await req.json();
+    const { action, flagged } = body;
 
-    if (!userId || !action || (action !== "verify" && action !== "reject")) {
-      return NextResponse.json({ error: "Invalid parameters." }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
     await dbConnect();
@@ -26,6 +27,25 @@ export async function PATCH(
     const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    if (flagged !== undefined) {
+      user.flagged = flagged;
+      await user.save();
+      return NextResponse.json({
+        success: true,
+        message: `User fraud flag updated to ${flagged}.`,
+        user: {
+          id: user._id.toString(),
+          verified: user.verified,
+          licenseStatus: user.license?.status,
+          flagged: user.flagged,
+        },
+      });
+    }
+
+    if (!action || (action !== "verify" && action !== "reject")) {
+      return NextResponse.json({ error: "Invalid parameters. action or flagged is required." }, { status: 400 });
     }
 
     if (action === "verify") {
@@ -50,7 +70,8 @@ export async function PATCH(
       user: {
         id: user._id.toString(),
         verified: user.verified,
-        licenseStatus: user.license.status,
+        licenseStatus: user.license?.status,
+        flagged: user.flagged,
       },
     });
   } catch (error: any) {

@@ -11,6 +11,8 @@ export interface IUser {
   };
   selfieUrl?: string;
   verified: boolean;
+  wishlist?: mongoose.Types.ObjectId[];
+  flagged: boolean;
   createdAt: Date;
 }
 
@@ -34,6 +36,8 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     selfieUrl: { type: String },
     verified: { type: Boolean, default: false },
+    wishlist: { type: [{ type: Schema.Types.ObjectId, ref: "Vehicle" }], default: [] },
+    flagged: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

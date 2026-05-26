@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { User, ShieldCheck, ShieldAlert, FileImage, Image as ImageIcon, CheckCircle, Clock, Trash2, Calendar, MapPin, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import VehicleCard from "@/components/VehicleCard";
 
 export default function ProfilePage() {
   const { data: session, update: updateSession } = useSession();
@@ -131,7 +132,7 @@ export default function ProfilePage() {
       <div className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 space-y-8">
         
         {/* User Card Hero */}
-        <section className="bg-mountain-black-light border border-white/5 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+        <section className="bg-mountain-black-light border border-white/5 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
           <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
             <div className="w-16 h-16 rounded-full bg-forest-green/20 border border-forest-green-light flex items-center justify-center text-forest-green-light">
               <User className="w-8 h-8" />
@@ -139,7 +140,7 @@ export default function ProfilePage() {
             <div>
               <h1 className="font-heading font-black text-xl text-snow-white">{session.user.name}</h1>
               <p className="text-gray-400 text-sm">{session.user.phone}</p>
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex gap-2 justify-center sm:justify-start">
                 <span className="text-[10px] bg-white/5 text-gray-300 font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-white/5">
                   Role: {dbUser?.role || session.user.role}
                 </span>
@@ -149,6 +150,26 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Quick Stats & Action Cards */}
+          <div className="flex gap-4 w-full md:w-auto justify-center sm:justify-start">
+            <Link
+              href="/wishlist"
+              className="bg-mountain-black border border-white/5 hover:border-rose-500/30 p-4 rounded-xl text-center shrink-0 min-w-[100px] transition-all"
+            >
+              <span className="block text-lg font-black text-rose-500">
+                ❤️ {dbUser?.wishlist?.length || 0}
+              </span>
+              <span className="block text-[9px] text-gray-500 uppercase font-bold mt-0.5 font-sans">Wishlist</span>
+            </Link>
+            
+            <div className="bg-mountain-black border border-white/5 p-4 rounded-xl text-center shrink-0 min-w-[100px]">
+              <span className="block text-lg font-black text-sunset-orange">
+                🧳 {allBookings.length}
+              </span>
+              <span className="block text-[9px] text-gray-500 uppercase font-bold mt-0.5 font-sans">Trips</span>
             </div>
           </div>
 
@@ -280,6 +301,27 @@ export default function ProfilePage() {
                 )}
               </button>
             </form>
+          </section>
+        )}
+
+        {/* Interactive Wishlist Grid */}
+        {!loadingProfile && dbUser?.wishlist && dbUser.wishlist.length > 0 && (
+          <section className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="font-heading font-extrabold text-lg text-snow-white flex items-center gap-2">
+                <span className="text-rose-500">❤️</span>
+                <span>My Wishlist ({dbUser.wishlist.length})</span>
+              </h2>
+              <Link href="/wishlist" className="text-xs text-sunset-orange hover:underline font-bold">
+                View All
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {dbUser.wishlist.slice(0, 3).map((vehicle: any) => (
+                <VehicleCard key={vehicle._id} vehicle={vehicle} />
+              ))}
+            </div>
           </section>
         )}
 

@@ -5,7 +5,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
-import { Plus, Check, X, ShieldAlert, Award, TrendingUp, Calendar, Trash2, MapPin, Sparkles, MessageCircle } from "lucide-react";
+import { 
+  Plus, Check, X, ShieldAlert, Award, TrendingUp, Calendar, Trash2, MapPin, 
+  Sparkles, MessageCircle, Edit3, CalendarDays, AlertTriangle 
+} from "lucide-react";
 import Link from "next/link";
 
 export default function OwnerDashboard() {
@@ -28,9 +31,38 @@ export default function OwnerDashboard() {
   const [seatingCapacity, setSeatingCapacity] = useState("2");
   const [deliveryAvailable, setDeliveryAvailable] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [rcUrl, setRcUrl] = useState("");
+  const [insuranceUrl, setInsuranceUrl] = useState("");
 
   const [addingVehicle, setAddingVehicle] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
+
+  // Edit Vehicle Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editBrand, setEditBrand] = useState("");
+  const [editModel, setEditModel] = useState("");
+  const [editType, setEditType] = useState("scooter");
+  const [editPricePerDay, setEditPricePerDay] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editEngineCc, setEditEngineCc] = useState("");
+  const [editFuelType, setEditFuelType] = useState("Petrol");
+  const [editTransmission, setEditTransmission] = useState("Non-Geared");
+  const [editSeatingCapacity, setEditSeatingCapacity] = useState("2");
+  const [editDeliveryAvailable, setEditDeliveryAvailable] = useState(false);
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editRcUrl, setEditRcUrl] = useState("");
+  const [editInsuranceUrl, setEditInsuranceUrl] = useState("");
+  const [updatingVehicle, setUpdatingVehicle] = useState(false);
+
+  // Block Dates Modal States
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [blockingVehicleId, setBlockingVehicleId] = useState("");
+  const [blockingVehicleTitle, setBlockingVehicleTitle] = useState("");
+  const [blockedDatesList, setBlockedDatesList] = useState<string[]>([]);
+  const [newBlockDate, setNewBlockDate] = useState("");
+  const [savingBlockedDates, setSavingBlockedDates] = useState(false);
 
   // Dashboard data states
   const [loadingDashboard, setLoadingDashboard] = useState(true);
@@ -76,7 +108,6 @@ export default function OwnerDashboard() {
     try {
       const res = await fetch("/api/owner/activate", { method: "POST" });
       if (res.ok) {
-        const data = await res.json();
         // Update next-auth session user role
         await updateSession({
           ...session,
@@ -114,7 +145,11 @@ export default function OwnerDashboard() {
           seatingCapacity: Number(seatingCapacity),
           deliveryAvailable,
         },
-        images: imageUrl ? [imageUrl] : [],
+        images: imageUrl ? [imageUrl] : ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
+        documents: {
+          rcUrl: rcUrl || "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+          insuranceUrl: insuranceUrl || "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
+        }
       };
 
       const res = await fetch("/api/owner/vehicles", {
@@ -135,12 +170,140 @@ export default function OwnerDashboard() {
       setPricePerDay("");
       setEngineCc("");
       setImageUrl("");
+      setRcUrl("");
+      setInsuranceUrl("");
 
       await fetchDashboardData();
     } catch (error) {
       console.error("Error adding vehicle:", error);
     } finally {
       setAddingVehicle(false);
+    }
+  };
+
+  const handleOpenEditModal = (vehicle: any) => {
+    setEditingVehicleId(vehicle._id);
+    setEditTitle(vehicle.title || "");
+    setEditBrand(vehicle.brand || "");
+    setEditModel(vehicle.model || "");
+    setEditType(vehicle.type || "scooter");
+    setEditPricePerDay(vehicle.pricePerDay || "");
+    setEditLocation(vehicle.location || "Bir Colony");
+    setEditEngineCc(vehicle.specs?.engineCc || "");
+    setEditFuelType(vehicle.specs?.fuelType || "Petrol");
+    setEditTransmission(vehicle.specs?.transmission || "Non-Geared");
+    setEditSeatingCapacity(vehicle.specs?.seatingCapacity || "2");
+    setEditDeliveryAvailable(vehicle.specs?.deliveryAvailable || false);
+    setEditImageUrl(vehicle.images?.[0] || "");
+    setEditRcUrl(vehicle.documents?.rcUrl || "");
+    setEditInsuranceUrl(vehicle.documents?.insuranceUrl || "");
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateVehicleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdatingVehicle(true);
+
+    try {
+      const payload = {
+        title: editTitle,
+        brand: editBrand,
+        model: editModel,
+        type: editType,
+        pricePerDay: Number(editPricePerDay),
+        location: editLocation,
+        specs: {
+          engineCc: Number(editEngineCc) || undefined,
+          fuelType: editFuelType,
+          transmission: editTransmission,
+          seatingCapacity: Number(editSeatingCapacity),
+          deliveryAvailable: editDeliveryAvailable,
+        },
+        images: editImageUrl ? [editImageUrl] : [],
+        documents: {
+          rcUrl: editRcUrl,
+          insuranceUrl: editInsuranceUrl,
+        }
+      };
+
+      const res = await fetch(`/api/owner/vehicles/${editingVehicleId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update vehicle");
+      }
+
+      setIsEditModalOpen(false);
+      await fetchDashboardData();
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+    } finally {
+      setUpdatingVehicle(false);
+    }
+  };
+
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    if (!confirm("Are you sure you want to delete this listing from your fleet?")) return;
+
+    try {
+      const res = await fetch(`/api/owner/vehicles/${vehicleId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        await fetchDashboardData();
+      }
+    } catch (error) {
+      console.error("Failed to delete vehicle:", error);
+    }
+  };
+
+  const handleOpenBlockModal = (vehicle: any) => {
+    setBlockingVehicleId(vehicle._id);
+    setBlockingVehicleTitle(vehicle.title);
+    
+    // Parse blocked dates to YYYY-MM-DD
+    const dates = (vehicle.blockedDates || []).map((d: any) => {
+      const dateObj = new Date(d);
+      return dateObj.toISOString().split("T")[0];
+    });
+    setBlockedDatesList(dates);
+    setNewBlockDate("");
+    setIsBlockModalOpen(true);
+  };
+
+  const handleAddBlockDate = () => {
+    if (!newBlockDate) return;
+    if (blockedDatesList.includes(newBlockDate)) return;
+    
+    setBlockedDatesList([...blockedDatesList, newBlockDate].sort());
+    setNewBlockDate("");
+  };
+
+  const handleRemoveBlockDate = (dateStr: string) => {
+    setBlockedDatesList(blockedDatesList.filter(d => d !== dateStr));
+  };
+
+  const handleSaveBlockedDates = async () => {
+    setSavingBlockedDates(true);
+    try {
+      const res = await fetch(`/api/owner/vehicles/${blockingVehicleId}/block-dates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blockedDates: blockedDatesList }),
+      });
+
+      if (res.ok) {
+        setIsBlockModalOpen(false);
+        await fetchDashboardData();
+      }
+    } catch (error) {
+      console.error("Failed to save blocked dates:", error);
+    } finally {
+      setSavingBlockedDates(false);
     }
   };
 
@@ -356,18 +519,65 @@ export default function OwnerDashboard() {
               ) : vehicles.length > 0 ? (
                 <div className="space-y-3">
                   {vehicles.map((v) => (
-                    <div key={v._id} className="bg-mountain-black border border-white/5 p-4 rounded-xl flex items-center justify-between gap-4">
+                    <div key={v._id} className="bg-mountain-black border border-white/5 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-9 rounded bg-black/25 overflow-hidden shrink-0 border border-white/5">
                           <img src={v.images?.[0] || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=150&q=80"} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-sm text-snow-white">{v.title}</h4>
-                          <span className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-bold text-sm text-snow-white">{v.title}</h4>
+                            
+                            {/* Status badge */}
+                            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${
+                              v.status === "approved"
+                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                : v.status === "rejected"
+                                ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                                : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                            }`}>
+                              {v.status === "approved" ? "Active" : v.status === "rejected" ? "Rejected" : "Awaiting Approval"}
+                            </span>
+
+                            {v.flagged && (
+                              <span className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-400" /> FLAGGED SUSPICIOUS
+                              </span>
+                            )}
+                          </div>
+                          
+                          <span className="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
                             <MapPin className="w-3 h-3 text-forest-green-light" />
-                            {v.location} • ₹{v.pricePerDay}/day
+                            {v.location} • ₹{v.pricePerDay}/day • {v.blockedDates?.length || 0} blocked days
                           </span>
                         </div>
+                      </div>
+
+                      {/* Fleet management Actions */}
+                      <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+                        <button
+                          onClick={() => handleOpenBlockModal(v)}
+                          className="bg-white/5 border border-white/10 hover:border-sunset-orange text-gray-300 hover:text-sunset-orange px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Block Availability Calendar"
+                        >
+                          <CalendarDays className="w-3.5 h-3.5" />
+                          <span>Calendar</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenEditModal(v)}
+                          className="bg-white/5 border border-white/10 hover:border-forest-green-light text-gray-300 hover:text-forest-green-light px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Edit Listing Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteVehicle(v._id)}
+                          className="p-2 bg-white/5 border border-white/10 hover:bg-rose-500/20 hover:text-rose-400 rounded-lg cursor-pointer transition-colors"
+                          title="Delete Listing"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -388,13 +598,13 @@ export default function OwnerDashboard() {
                 <Plus className="w-5 h-5 text-sunset-orange" />
                 <span>Add Vehicle</span>
               </h2>
-              <p className="text-[10px] text-gray-500 mt-1">Publish a scooter, motorcycle, or car for rent.</p>
+              <p className="text-[10px] text-gray-500 mt-1">Publish a scooter, motorcycle, or car for rent. Required admin review.</p>
             </div>
 
             {addSuccess && (
-              <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs flex items-center gap-2">
+              <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
                 <Check className="w-4 h-4" />
-                Listing added successfully!
+                Listing added! Awaiting Admin Approval.
               </div>
             )}
 
@@ -519,10 +729,10 @@ export default function OwnerDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine Size (cc)</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
                   <input
                     type="number"
-                    placeholder="e.g. 350 (optional)"
+                    placeholder="e.g. 350"
                     value={engineCc}
                     onChange={(e) => setEngineCc(e.target.value)}
                     className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
@@ -539,6 +749,32 @@ export default function OwnerDashboard() {
                   onChange={(e) => setImageUrl(e.target.value)}
                   className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
                 />
+              </div>
+
+              <div className="border-t border-white/5 pt-3 space-y-3">
+                <span className="block text-[10px] font-bold uppercase text-gray-400">Verifying Documents (Simulated URLs)</span>
+                
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Registration Certificate (RC) Link</label>
+                  <input
+                    type="text"
+                    placeholder="Leave empty for mock placeholder"
+                    value={rcUrl}
+                    onChange={(e) => setRcUrl(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Insurance Certificate Link</label>
+                  <input
+                    type="text"
+                    placeholder="Leave empty for mock placeholder"
+                    value={insuranceUrl}
+                    onChange={(e) => setInsuranceUrl(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-between pt-2">
@@ -574,6 +810,303 @@ export default function OwnerDashboard() {
         </div>
 
       </div>
+
+      {/* Edit Vehicle Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-mountain-black-light border border-white/10 max-w-lg w-full rounded-2xl shadow-2xl p-6 relative my-8 animate-scale-in">
+            <button 
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-snow-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-heading font-black text-xl text-snow-white flex items-center gap-2 mb-2">
+              <Edit3 className="w-5 h-5 text-sunset-orange" />
+              <span>Edit Vehicle Listing</span>
+            </h3>
+            <p className="text-xs text-gray-500 mb-6">Updating your listing will set its status to pending admin approval.</p>
+
+            <form onSubmit={handleUpdateVehicleSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Title</label>
+                <input
+                  type="text"
+                  required
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Brand</label>
+                  <input
+                    type="text"
+                    required
+                    value={editBrand}
+                    onChange={(e) => setEditBrand(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Model</label>
+                  <input
+                    type="text"
+                    required
+                    value={editModel}
+                    onChange={(e) => setEditModel(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Type</label>
+                  <select
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  >
+                    <option value="scooter">Scooter</option>
+                    <option value="bike">Motorbike</option>
+                    <option value="car">Car / SUV</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Rate (₹/day)</label>
+                  <input
+                    type="number"
+                    required
+                    value={editPricePerDay}
+                    onChange={(e) => setEditPricePerDay(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Location</label>
+                  <select
+                    value={editLocation}
+                    onChange={(e) => setEditLocation(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  >
+                    <option value="McLeod Ganj">McLeod Ganj</option>
+                    <option value="Bhagsu">Bhagsu</option>
+                    <option value="Dharamkot">Dharamkot</option>
+                    <option value="Bir Colony">Bir Colony</option>
+                    <option value="Landing Site">Landing Site</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Fuel Type</label>
+                  <select
+                    value={editFuelType}
+                    onChange={(e) => setEditFuelType(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  >
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Transmission</label>
+                  <select
+                    value={editTransmission}
+                    onChange={(e) => setEditTransmission(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  >
+                    <option value="Manual">Manual</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Geared">Geared</option>
+                    <option value="Non-Geared">Non-Geared</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
+                  <input
+                    type="number"
+                    value={editEngineCc}
+                    onChange={(e) => setEditEngineCc(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Image URL</label>
+                <input
+                  type="text"
+                  value={editImageUrl}
+                  onChange={(e) => setEditImageUrl(e.target.value)}
+                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                />
+              </div>
+
+              <div className="border-t border-white/5 pt-3 space-y-3">
+                <span className="block text-[10px] font-bold uppercase text-gray-400">Verifying Documents (Simulated URLs)</span>
+                
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Registration Certificate (RC) Link</label>
+                  <input
+                    type="text"
+                    value={editRcUrl}
+                    onChange={(e) => setEditRcUrl(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Insurance Certificate Link</label>
+                  <input
+                    type="text"
+                    value={editInsuranceUrl}
+                    onChange={(e) => setEditInsuranceUrl(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[10px] font-bold uppercase text-gray-500">Delivery Available</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editDeliveryAvailable}
+                    onChange={(e) => setEditDeliveryAvailable(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-white/10 rounded-full peer peer-focus:ring-0 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-forest-green-light peer-checked:after:bg-snow-white" />
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-bold rounded-lg border border-white/10 text-center transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingVehicle}
+                  className="flex-1 py-3 bg-gradient-to-r from-forest-green-light to-forest-green text-snow-white font-bold rounded-lg hover:scale-102 transition-all cursor-pointer flex items-center justify-center"
+                >
+                  {updatingVehicle ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Calendar Date Blocker Modal */}
+      {isBlockModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-mountain-black-light border border-white/10 max-w-md w-full rounded-2xl shadow-2xl p-6 relative animate-scale-in">
+            <button 
+              onClick={() => setIsBlockModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-snow-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-heading font-black text-xl text-snow-white flex items-center gap-2 mb-1">
+              <CalendarDays className="w-5 h-5 text-sunset-orange" />
+              <span>Block Dates Calendar</span>
+            </h3>
+            <p className="text-xs text-gray-500 mb-4">{blockingVehicleTitle}</p>
+            <p className="text-[11px] text-gray-400 mb-4 leading-relaxed">
+              Block dates when your vehicle is booked externally, undergoing maintenance, or otherwise unavailable.
+            </p>
+
+            <div className="space-y-4">
+              {/* Date Input */}
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={newBlockDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setNewBlockDate(e.target.value)}
+                  className="flex-grow bg-mountain-black border border-white/10 rounded-lg px-3 py-2 text-xs text-snow-white focus:outline-none focus:border-sunset-orange"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddBlockDate}
+                  className="bg-sunset-orange hover:bg-sunset-orange-dark text-white px-4 py-2 rounded-lg font-bold text-xs cursor-pointer transition-colors"
+                >
+                  Block Date
+                </button>
+              </div>
+
+              {/* Blocked Dates List */}
+              <div className="bg-mountain-black border border-white/5 rounded-xl p-4 min-h-[120px] max-h-[220px] overflow-y-auto">
+                <span className="block text-[10px] font-bold uppercase text-gray-500 mb-2">Blocked Dates List</span>
+                {blockedDatesList.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {blockedDatesList.map((dateStr) => (
+                      <span 
+                        key={dateStr}
+                        className="bg-white/5 border border-white/10 text-gray-300 rounded px-2.5 py-1 text-xs flex items-center gap-1.5"
+                      >
+                        {new Date(dateStr).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveBlockDate(dateStr)}
+                          className="text-gray-500 hover:text-rose-400 transition-colors focus:outline-none"
+                          title="Remove block"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center py-6">
+                    <span className="text-[10px] text-gray-600 italic">No blocked dates. Vehicle is fully available.</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBlockModalOpen(false)}
+                  className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-bold rounded-lg border border-white/10 text-center transition-colors cursor-pointer text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={savingBlockedDates}
+                  onClick={handleSaveBlockedDates}
+                  className="flex-1 py-2.5 bg-gradient-to-r from-forest-green-light to-forest-green text-snow-white font-bold rounded-lg hover:scale-102 transition-all cursor-pointer text-xs flex items-center justify-center"
+                >
+                  {savingBlockedDates ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    "Save Calendar"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
