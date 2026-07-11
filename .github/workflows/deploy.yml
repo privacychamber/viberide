@@ -1,0 +1,45 @@
+name: Deploy to Namecheap
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy App
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: SSH into Namecheap and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NAMECHEAP_HOST }}
+          username: ${{ secrets.NAMECHEAP_USERNAME }}
+          key: ${{ secrets.NAMECHEAP_SSH_KEY }}
+          port: ${{ secrets.NAMECHEAP_PORT }}
+          script: |
+            # Replace /home/YOUR_CPANEL_USERNAME/public_html with your actual path!
+            export APP_DIR="/home/${{ secrets.NAMECHEAP_USERNAME }}/public_html"
+            
+            echo "Navigating to app directory: $APP_DIR"
+            cd $APP_DIR
+            
+            echo "Pulling latest code from GitHub..."
+            git pull origin main
+            
+            echo "Entering Node.js virtual environment..."
+            # Replace '20' with the actual node version you selected in cPanel
+            source /home/${{ secrets.NAMECHEAP_USERNAME }}/nodevenv/public_html/20/bin/activate
+            
+            echo "Installing dependencies..."
+            npm install
+            
+            echo "Building Next.js for production..."
+            npm run build
+            
+            echo "Restarting Phusion Passenger (cPanel Node.js)..."
+            mkdir -p tmp
+            touch tmp/restart.txt
+            
+            echo "Deployment successful! 🚀"
