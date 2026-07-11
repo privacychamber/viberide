@@ -359,7 +359,7 @@ export default function OwnerDashboard() {
               </span>
             </h1>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-              Earn between ₹15,000–₹60,000/mo by listing your scooter, bike, or car on Viberide. Connect with tourists, nomads, and paragliders visiting Dharamshala and Bir Billing.
+              Earn between ₹15,000–₹60,000/mo by listing your scooter, bike, or car on Viberide. Connect with tourists, nomads, and paragliders visiting Himachal Pradesh.
             </p>
           </div>
 
