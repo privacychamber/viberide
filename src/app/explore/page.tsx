@@ -204,7 +204,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
               <select
                 name="city"
                 defaultValue={city}
-                onChange={(e) => e.target.form?.submit()}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
               >
                 <option value="">All Cities</option>
@@ -223,7 +222,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
               <select
                 name="type"
                 defaultValue={type}
-                onChange={(e) => e.target.form?.submit()}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
               >
                 <option value="">All Types</option>
@@ -239,7 +237,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
               <select
                 name="transmission"
                 defaultValue={transmission}
-                onChange={(e) => e.target.form?.submit()}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
               >
                 <option value="">All</option>
@@ -256,7 +253,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
               <select
                 name="fuel"
                 defaultValue={fuel}
-                onChange={(e) => e.target.form?.submit()}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
               >
                 <option value="">All</option>
@@ -275,12 +271,15 @@ export default async function ExplorePage({ searchParams }: PageProps) {
                   name="delivery"
                   value="true"
                   defaultChecked={delivery === "true"}
-                  onChange={(e) => e.target.form?.submit()}
                   className="sr-only peer"
                 />
                 <div className="w-9 h-5 bg-white/10 rounded-full peer peer-focus:ring-0 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-forest-green-light peer-checked:after:bg-snow-white" />
               </label>
             </div>
+
+            <button type="submit" className="w-full bg-sunset-orange hover:bg-sunset-orange-dark text-white py-3 rounded-xl font-bold text-sm transition-colors mt-6">
+              Apply Filters
+            </button>
 
             {/* Hidden field triggers to preserve other filters on text search */}
             {query && <input type="hidden" name="query" value={query} />}
