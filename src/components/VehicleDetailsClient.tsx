@@ -297,7 +297,17 @@ export default function VehicleDetailsClient({
                         required
                         min={new Date().toISOString().split("T")[0]}
                         value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
+                        onChange={(e) => {
+                          const date = e.target.value;
+                          const isBlocked = vehicle.blockedDates?.some((d: string) => d.startsWith(date));
+                          if (isBlocked) {
+                            setError("This pickup date is unavailable (blocked by owner).");
+                            setFromDate("");
+                          } else {
+                            setError("");
+                            setFromDate(date);
+                          }
+                        }}
                         className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-snow-white focus:outline-none focus:border-forest-green-light focus:ring-0"
                       />
                     </div>
@@ -310,7 +320,17 @@ export default function VehicleDetailsClient({
                         required
                         min={fromDate || new Date().toISOString().split("T")[0]}
                         value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
+                        onChange={(e) => {
+                          const date = e.target.value;
+                          const isBlocked = vehicle.blockedDates?.some((d: string) => d.startsWith(date));
+                          if (isBlocked) {
+                            setError("This dropoff date is unavailable (blocked by owner).");
+                            setToDate("");
+                          } else {
+                            setError("");
+                            setToDate(date);
+                          }
+                        }}
                         className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-snow-white focus:outline-none focus:border-forest-green-light focus:ring-0"
                       />
                     </div>

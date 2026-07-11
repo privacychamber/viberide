@@ -60,6 +60,33 @@ export default function ProfilePage() {
     }
   }, [session]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    setUploading(true);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setter(data.url);
+      } else {
+        alert("Upload failed: " + data.error);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user) return;
@@ -235,11 +262,10 @@ export default function ProfilePage() {
                 <div className="bg-mountain-black border border-white/5 p-4 rounded-xl space-y-3">
                   <span className="block text-xs font-bold uppercase text-gray-500">DL Front Image</span>
                   <input
-                    type="text"
-                    placeholder="Enter Image URL (or leave blank for demo)"
-                    value={frontImage}
-                    onChange={(e) => setFrontImage(e.target.value)}
-                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, setFrontImage)}
+                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                   />
                   <div className="aspect-[4/3] rounded-lg border border-dashed border-white/10 bg-white/5 flex items-center justify-center overflow-hidden">
                     {frontImage ? (
@@ -254,11 +280,10 @@ export default function ProfilePage() {
                 <div className="bg-mountain-black border border-white/5 p-4 rounded-xl space-y-3">
                   <span className="block text-xs font-bold uppercase text-gray-500">DL Back Image</span>
                   <input
-                    type="text"
-                    placeholder="Enter Image URL (or leave blank for demo)"
-                    value={backImage}
-                    onChange={(e) => setBackImage(e.target.value)}
-                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, setBackImage)}
+                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                   />
                   <div className="aspect-[4/3] rounded-lg border border-dashed border-white/10 bg-white/5 flex items-center justify-center overflow-hidden">
                     {backImage ? (
@@ -273,11 +298,10 @@ export default function ProfilePage() {
                 <div className="bg-mountain-black border border-white/5 p-4 rounded-xl space-y-3">
                   <span className="block text-xs font-bold uppercase text-gray-500">Selfie Verification</span>
                   <input
-                    type="text"
-                    placeholder="Enter Selfie URL (or leave blank for demo)"
-                    value={selfieImage}
-                    onChange={(e) => setSelfieImage(e.target.value)}
-                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, setSelfieImage)}
+                    className="w-full bg-mountain-black-light border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                   />
                   <div className="aspect-[4/3] rounded-lg border border-dashed border-white/10 bg-white/5 flex items-center justify-center overflow-hidden">
                     {selfieImage ? (

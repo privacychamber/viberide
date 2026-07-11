@@ -131,6 +131,35 @@ export default function OwnerDashboard() {
     }
   };
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    setUploading(true);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setter(data.url);
+      } else {
+        alert("Upload failed: " + data.error);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddingVehicle(true);
@@ -762,39 +791,39 @@ export default function OwnerDashboard() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Image URL</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Vehicle Image</label>
                 <input
-                  type="text"
-                  placeholder="Paste Unsplash or image link"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, setImageUrl)}
+                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                 />
+                {imageUrl && <p className="text-[10px] text-emerald-400 mt-1">✓ Image uploaded</p>}
               </div>
 
               <div className="border-t border-white/5 pt-3 space-y-3">
-                <span className="block text-[10px] font-bold uppercase text-gray-400">Verifying Documents (Simulated URLs)</span>
+                <span className="block text-[10px] font-bold uppercase text-gray-400">Verifying Documents</span>
                 
                 <div>
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Registration Certificate (RC) Link</label>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Registration Certificate (RC)</label>
                   <input
-                    type="text"
-                    placeholder="Leave empty for mock placeholder"
-                    value={rcUrl}
-                    onChange={(e) => setRcUrl(e.target.value)}
-                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, setRcUrl)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                   />
+                  {rcUrl && <p className="text-[10px] text-emerald-400 mt-1">✓ RC uploaded</p>}
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Insurance Certificate Link</label>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase mb-1">Insurance Certificate</label>
                   <input
-                    type="text"
-                    placeholder="Leave empty for mock placeholder"
-                    value={insuranceUrl}
-                    onChange={(e) => setInsuranceUrl(e.target.value)}
-                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, setInsuranceUrl)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sunset-orange/10 file:text-sunset-orange hover:file:bg-sunset-orange/20"
                   />
+                  {insuranceUrl && <p className="text-[10px] text-emerald-400 mt-1">✓ Insurance uploaded</p>}
                 </div>
               </div>
 
