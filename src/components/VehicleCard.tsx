@@ -113,7 +113,13 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
         {/* Location Info */}
         <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
           <MapPin className="w-3.5 h-3.5 text-forest-green-light" />
-          <span>{vehicle.location.area}, {vehicle.location.city}</span>
+          <span>
+            {typeof vehicle.location === 'string' 
+              ? vehicle.location 
+              : vehicle.location 
+                ? `${vehicle.location.area || 'Unknown'}, ${vehicle.location.city || 'Unknown'}`
+                : 'Location Unknown'}
+          </span>
         </div>
 
         {/* Spec Tags */}
