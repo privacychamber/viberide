@@ -15,7 +15,7 @@ const FALLBACK_VEHICLES = [
     brand: "Royal Enfield",
     model: "Himalayan 450",
     pricePerDay: 1800,
-    location: "McLeod Ganj",
+    location: { area: "McLeod Ganj", city: "Dharamshala", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 450, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -26,7 +26,7 @@ const FALLBACK_VEHICLES = [
     brand: "Honda",
     model: "Activa 6G",
     pricePerDay: 450,
-    location: "Bir Colony",
+    location: { area: "Bir Colony", city: "Bir", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 110, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -37,7 +37,7 @@ const FALLBACK_VEHICLES = [
     brand: "Mahindra",
     model: "Thar 4x4",
     pricePerDay: 3500,
-    location: "Landing Site",
+    location: { area: "Landing Site", city: "Bir", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 2184, fuelType: "Diesel", transmission: "Manual", seatingCapacity: 4, deliveryAvailable: true }
   }
@@ -98,28 +98,30 @@ export default async function Home() {
           </p>
 
           {/* Quick Search CTA */}
-          <div className="w-full max-w-md bg-mountain-black-light/80 backdrop-blur-xl border border-white/10 p-2.5 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl">
+          <form action="/explore" className="w-full max-w-md bg-mountain-black-light/80 backdrop-blur-xl border border-white/10 p-2.5 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl">
             <div className="flex-1 flex items-center gap-2 px-3 py-2 text-left">
               <MapPin className="w-5 h-5 text-sunset-orange shrink-0" />
               <div>
-                <p className="text-[10px] text-gray-500 uppercase font-bold">Select Area</p>
-                <select className="bg-transparent text-sm font-semibold text-snow-white focus:outline-none border-none p-0 cursor-pointer w-full">
-                  <option className="bg-mountain-black-light text-snow-white" value="">All Dharamshala & Bir</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="McLeod Ganj">McLeod Ganj</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Dharamkot">Dharamkot</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Bir Colony">Bir Colony</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Landing Site">Landing Site (Bir)</option>
+                <p className="text-[10px] text-gray-500 uppercase font-bold">Select City</p>
+                <select name="city" className="bg-transparent text-sm font-semibold text-snow-white focus:outline-none border-none p-0 cursor-pointer w-full">
+                  <option className="bg-mountain-black-light text-snow-white" value="">All Himachal</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Dharamshala">Dharamshala</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Bir">Bir</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Manali">Manali</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Shimla">Shimla</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Kasol">Kasol</option>
+                  <option className="bg-mountain-black-light text-snow-white" value="Dalhousie">Dalhousie</option>
                 </select>
               </div>
             </div>
-            <Link
-              href="/explore"
+            <button
+              type="submit"
               className="bg-gradient-to-r from-sunset-orange to-sunset-orange-dark hover:scale-102 hover:shadow-lg hover:shadow-sunset-orange/20 text-snow-white py-3 sm:py-0 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               Browse Vehicles
               <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+            </button>
+          </form>
         </div>
       </header>
 
