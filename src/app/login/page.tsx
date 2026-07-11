@@ -14,6 +14,7 @@ function LoginForm() {
 
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState("renter");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ function LoginForm() {
         phone,
         name,
         otp,
+        role,
         redirect: false,
       });
 
@@ -130,6 +132,31 @@ function LoginForm() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-snow-white focus:outline-none focus:border-sunset-orange focus:ring-0"
               />
+            </div>
+          </div>
+
+          {/* Role Selection for New Registration */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">I want to (New Users Only)</label>
+            <div className="flex bg-mountain-black border border-white/10 rounded-xl p-1">
+              <button
+                type="button"
+                onClick={() => setRole("renter")}
+                className={`flex-1 text-xs py-2.5 rounded-lg font-bold transition-all ${
+                  role === "renter" ? "bg-white/10 text-snow-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                Rent Vehicles
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("owner")}
+                className={`flex-1 text-xs py-2.5 rounded-lg font-bold transition-all ${
+                  role === "owner" ? "bg-white/10 text-snow-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                List My Vehicle
+              </button>
             </div>
           </div>
 

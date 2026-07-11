@@ -28,6 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         phone: { label: "Phone Number", type: "text", placeholder: "e.g., 9876543210" },
         name: { label: "Full Name", type: "text", placeholder: "New users only" },
         otp: { label: "OTP", type: "text", placeholder: "e.g., 123456" },
+        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.phone) {
@@ -37,6 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const phone = credentials.phone as string;
         const name = (credentials.name as string) || "Viberider";
         const otp = credentials.otp as string;
+        const requestedRole = credentials.role === "owner" ? "owner" : "renter";
 
         // Simple mock OTP validation (accepts any 6-digit number or 123456)
         if (otp && otp.length !== 6) {
@@ -52,7 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user = await User.create({
             name,
             phone,
-            role: "renter",
+            role: requestedRole,
             verified: false,
             license: { status: "none" },
           });
