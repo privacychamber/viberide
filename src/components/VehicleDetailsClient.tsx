@@ -171,13 +171,13 @@ export default function VehicleDetailsClient({
             <div>
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Specifications</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {vehicle.specs.transmission && (
+                {vehicle.specs?.transmission && (
                   <div className="bg-mountain-black border border-white/5 p-3 rounded-xl">
                     <span className="block text-[10px] text-gray-500 uppercase font-bold">Transmission</span>
                     <span className="text-sm font-semibold text-snow-white">{vehicle.specs.transmission}</span>
                   </div>
                 )}
-                {vehicle.specs.fuelType && (
+                {vehicle.specs?.fuelType && (
                   <div className="bg-mountain-black border border-white/5 p-3 rounded-xl">
                     <span className="block text-[10px] text-gray-500 uppercase font-bold">Fuel Type</span>
                     <span className="text-sm font-semibold text-snow-white flex items-center gap-1">
@@ -186,7 +186,7 @@ export default function VehicleDetailsClient({
                     </span>
                   </div>
                 )}
-                {vehicle.specs.engineCc && (
+                {vehicle.specs?.engineCc && (
                   <div className="bg-mountain-black border border-white/5 p-3 rounded-xl">
                     <span className="block text-[10px] text-gray-500 uppercase font-bold">Engine</span>
                     <span className="text-sm font-semibold text-snow-white">{vehicle.specs.engineCc} cc</span>
@@ -196,7 +196,7 @@ export default function VehicleDetailsClient({
                   <span className="block text-[10px] text-gray-500 uppercase font-bold">Seating Capacity</span>
                   <span className="text-sm font-semibold text-snow-white flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 text-blue-400" />
-                    {vehicle.specs.seatingCapacity || 2} Seater
+                    {vehicle.specs?.seatingCapacity || 2} Seater
                   </span>
                 </div>
               </div>

@@ -90,7 +90,7 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
           <Heart className={`w-4 h-4 ${saved ? "fill-rose-500 text-rose-500" : ""}`} />
         </button>
         {/* Delivery Badge */}
-        {vehicle.specs.deliveryAvailable && (
+        {vehicle.specs?.deliveryAvailable && (
           <div className="absolute bottom-3 left-3 bg-forest-green-dark/95 backdrop-blur-md text-[10px] font-bold px-2.5 py-1 rounded-full text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
             <Zap className="w-3 h-3" />
             Delivery
@@ -124,18 +124,18 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
 
         {/* Spec Tags */}
         <div className="flex flex-wrap gap-1.5 mb-6">
-          {vehicle.specs.transmission && (
+          {vehicle.specs?.transmission && (
             <span className="text-[10px] bg-white/5 border border-white/5 text-gray-300 px-2 py-0.5 rounded">
               {vehicle.specs.transmission}
             </span>
           )}
-          {vehicle.specs.fuelType && (
+          {vehicle.specs?.fuelType && (
             <span className="text-[10px] bg-white/5 border border-white/5 text-gray-300 px-2 py-0.5 rounded flex items-center gap-1">
               <Fuel className="w-2.5 h-2.5 text-amber-500" />
               {vehicle.specs.fuelType}
             </span>
           )}
-          {vehicle.specs.engineCc && (
+          {vehicle.specs?.engineCc && (
             <span className="text-[10px] bg-white/5 border border-white/5 text-gray-300 px-2 py-0.5 rounded">
               {vehicle.specs.engineCc} cc
             </span>
