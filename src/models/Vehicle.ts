@@ -6,7 +6,13 @@ export interface IVehicle {
   brand: string;
   model: string;
   pricePerDay: number;
-  location: string;
+  location: {
+    area: string;
+    city: string;
+    state: string;
+    country: string;
+    pincode?: string;
+  };
   images: string[];
   owner: mongoose.Types.ObjectId;
   availability: boolean;
@@ -39,7 +45,13 @@ const VehicleSchema: Schema<IVehicle> = new Schema(
     brand: { type: String, required: true },
     model: { type: String, required: true },
     pricePerDay: { type: Number, required: true },
-    location: { type: String, required: true }, // e.g. "McLeod Ganj"
+    location: {
+      area: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true, default: "Himachal Pradesh" },
+      country: { type: String, required: true, default: "India" },
+      pincode: { type: String },
+    },
     images: { type: [String], default: [] },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     availability: { type: Boolean, default: true },

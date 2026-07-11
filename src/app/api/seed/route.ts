@@ -58,7 +58,12 @@ export async function GET() {
         brand: "Royal Enfield",
         model: "Himalayan 450",
         pricePerDay: 1800,
-        location: "McLeod Ganj",
+        location: {
+          area: "McLeod Ganj",
+          city: "Dharamshala",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&w=800&q=80"
@@ -85,7 +90,12 @@ export async function GET() {
         brand: "Honda",
         model: "Activa 6G",
         pricePerDay: 450,
-        location: "Bir Colony",
+        location: {
+          area: "Bir Colony",
+          city: "Bir",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"
         ],
@@ -111,7 +121,12 @@ export async function GET() {
         brand: "KTM",
         model: "Duke 390",
         pricePerDay: 2200,
-        location: "Bhagsu",
+        location: {
+          area: "Bhagsu",
+          city: "Dharamshala",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80"
         ],
@@ -136,7 +151,12 @@ export async function GET() {
         brand: "Mahindra",
         model: "Thar 4x4",
         pricePerDay: 3500,
-        location: "Landing Site",
+        location: {
+          area: "Landing Site",
+          city: "Bir",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"
         ],
@@ -162,7 +182,12 @@ export async function GET() {
         brand: "Suzuki",
         model: "Access 125",
         pricePerDay: 500,
-        location: "Dharamkot",
+        location: {
+          area: "Dharamkot",
+          city: "Dharamshala",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&w=800&q=80"
         ],
@@ -187,7 +212,12 @@ export async function GET() {
         brand: "Ather",
         model: "450X",
         pricePerDay: 700,
-        location: "Bir Colony",
+        location: {
+          area: "Bir Colony",
+          city: "Bir",
+          state: "Himachal Pradesh",
+          country: "India"
+        },
         images: [
           "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"
         ],

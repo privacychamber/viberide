@@ -24,7 +24,10 @@ export default function OwnerDashboard() {
   const [model, setModel] = useState("");
   const [type, setType] = useState("scooter");
   const [pricePerDay, setPricePerDay] = useState("");
-  const [location, setLocation] = useState("Bir Colony");
+  const [area, setArea] = useState("Bir Colony");
+  const [city, setCity] = useState("Bir");
+  const [state, setState] = useState("Himachal Pradesh");
+  const [country, setCountry] = useState("India");
   const [engineCc, setEngineCc] = useState("");
   const [fuelType, setFuelType] = useState("Petrol");
   const [transmission, setTransmission] = useState("Non-Geared");
@@ -45,7 +48,10 @@ export default function OwnerDashboard() {
   const [editModel, setEditModel] = useState("");
   const [editType, setEditType] = useState("scooter");
   const [editPricePerDay, setEditPricePerDay] = useState("");
-  const [editLocation, setEditLocation] = useState("");
+  const [editArea, setEditArea] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editState, setEditState] = useState("Himachal Pradesh");
+  const [editCountry, setEditCountry] = useState("India");
   const [editEngineCc, setEditEngineCc] = useState("");
   const [editFuelType, setEditFuelType] = useState("Petrol");
   const [editTransmission, setEditTransmission] = useState("Non-Geared");
@@ -137,7 +143,7 @@ export default function OwnerDashboard() {
         model,
         type,
         pricePerDay: Number(pricePerDay),
-        location,
+        location: { area, city, state, country },
         specs: {
           engineCc: Number(engineCc) || undefined,
           fuelType,
@@ -188,7 +194,10 @@ export default function OwnerDashboard() {
     setEditModel(vehicle.model || "");
     setEditType(vehicle.type || "scooter");
     setEditPricePerDay(vehicle.pricePerDay || "");
-    setEditLocation(vehicle.location || "Bir Colony");
+    setEditArea(vehicle.location?.area || "");
+    setEditCity(vehicle.location?.city || "");
+    setEditState(vehicle.location?.state || "Himachal Pradesh");
+    setEditCountry(vehicle.location?.country || "India");
     setEditEngineCc(vehicle.specs?.engineCc || "");
     setEditFuelType(vehicle.specs?.fuelType || "Petrol");
     setEditTransmission(vehicle.specs?.transmission || "Non-Geared");
@@ -211,7 +220,7 @@ export default function OwnerDashboard() {
         model: editModel,
         type: editType,
         pricePerDay: Number(editPricePerDay),
-        location: editLocation,
+        location: { area: editArea, city: editCity, state: editState, country: editCountry },
         specs: {
           engineCc: Number(editEngineCc) || undefined,
           fuelType: editFuelType,
@@ -548,7 +557,7 @@ export default function OwnerDashboard() {
                           
                           <span className="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
                             <MapPin className="w-3 h-3 text-forest-green-light" />
-                            {v.location} • ₹{v.pricePerDay}/day • {v.blockedDates?.length || 0} blocked days
+                            {v.location?.area}, {v.location?.city} • ₹{v.pricePerDay}/day • {v.blockedDates?.length || 0} blocked days
                           </span>
                         </div>
                       </div>
@@ -687,19 +696,33 @@ export default function OwnerDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Location</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">City</label>
                   <select
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                     className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
                   >
-                    <option value="McLeod Ganj">McLeod Ganj</option>
-                    <option value="Bhagsu">Bhagsu</option>
-                    <option value="Dharamkot">Dharamkot</option>
-                    <option value="Bir Colony">Bir Colony</option>
-                    <option value="Landing Site">Landing Site</option>
+                    <option value="Dharamshala">Dharamshala</option>
+                    <option value="Bir">Bir</option>
+                    <option value="Manali">Manali</option>
+                    <option value="Shimla">Shimla</option>
+                    <option value="Kasol">Kasol</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Area / Landmark</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. McLeod Ganj"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Fuel Type</label>
                   <select
@@ -712,9 +735,6 @@ export default function OwnerDashboard() {
                     <option value="Electric">Electric</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Transmission</label>
                   <select
@@ -728,16 +748,17 @@ export default function OwnerDashboard() {
                     <option value="Non-Geared">Non-Geared</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 350"
-                    value={engineCc}
-                    onChange={(e) => setEngineCc(e.target.value)}
-                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
-                  />
-                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 350"
+                  value={engineCc}
+                  onChange={(e) => setEngineCc(e.target.value)}
+                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                />
               </div>
 
               <div>
@@ -890,19 +911,32 @@ export default function OwnerDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Location</label>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">City</label>
                   <select
-                    value={editLocation}
-                    onChange={(e) => setEditLocation(e.target.value)}
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
                     className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
                   >
-                    <option value="McLeod Ganj">McLeod Ganj</option>
-                    <option value="Bhagsu">Bhagsu</option>
-                    <option value="Dharamkot">Dharamkot</option>
-                    <option value="Bir Colony">Bir Colony</option>
-                    <option value="Landing Site">Landing Site</option>
+                    <option value="Dharamshala">Dharamshala</option>
+                    <option value="Bir">Bir</option>
+                    <option value="Manali">Manali</option>
+                    <option value="Shimla">Shimla</option>
+                    <option value="Kasol">Kasol</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Area / Landmark</label>
+                  <input
+                    type="text"
+                    required
+                    value={editArea}
+                    onChange={(e) => setEditArea(e.target.value)}
+                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Fuel Type</label>
                   <select
@@ -915,9 +949,6 @@ export default function OwnerDashboard() {
                     <option value="Electric">Electric</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Transmission</label>
                   <select
@@ -931,15 +962,16 @@ export default function OwnerDashboard() {
                     <option value="Non-Geared">Non-Geared</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
-                  <input
-                    type="number"
-                    value={editEngineCc}
-                    onChange={(e) => setEditEngineCc(e.target.value)}
-                    className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
-                  />
-                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Engine CC</label>
+                <input
+                  type="number"
+                  value={editEngineCc}
+                  onChange={(e) => setEditEngineCc(e.target.value)}
+                  className="w-full bg-mountain-black border border-white/10 rounded-lg px-2.5 py-2 text-snow-white focus:outline-none focus:border-sunset-orange"
+                />
               </div>
 
               <div>

@@ -14,7 +14,7 @@ const FALLBACK_VEHICLES = [
     brand: "Royal Enfield",
     model: "Himalayan 450",
     pricePerDay: 1800,
-    location: "McLeod Ganj",
+    location: { area: "McLeod Ganj", city: "Dharamshala", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 450, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -25,7 +25,7 @@ const FALLBACK_VEHICLES = [
     brand: "Honda",
     model: "Activa 6G",
     pricePerDay: 450,
-    location: "Bir Colony",
+    location: { area: "Bir Colony", city: "Bir", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 110, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -36,7 +36,7 @@ const FALLBACK_VEHICLES = [
     brand: "Mahindra",
     model: "Thar 4x4",
     pricePerDay: 3500,
-    location: "Landing Site",
+    location: { area: "Landing Site", city: "Bir", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 2184, fuelType: "Diesel", transmission: "Manual", seatingCapacity: 4, deliveryAvailable: true }
   },
@@ -47,7 +47,7 @@ const FALLBACK_VEHICLES = [
     brand: "KTM",
     model: "Duke 390",
     pricePerDay: 2200,
-    location: "Bhagsu",
+    location: { area: "Bhagsu", city: "Dharamshala", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 373, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: false }
   },
@@ -58,7 +58,7 @@ const FALLBACK_VEHICLES = [
     brand: "Suzuki",
     model: "Access 125",
     pricePerDay: 500,
-    location: "Dharamkot",
+    location: { area: "Dharamkot", city: "Dharamshala", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 124, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -69,7 +69,7 @@ const FALLBACK_VEHICLES = [
     brand: "Ather",
     model: "450X",
     pricePerDay: 700,
-    location: "Bir Colony",
+    location: { area: "Bir Colony", city: "Bir", state: "Himachal Pradesh", country: "India" },
     images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
     specs: { fuelType: "Electric", transmission: "Automatic", seatingCapacity: 2, deliveryAvailable: true }
   }
@@ -79,7 +79,7 @@ interface PageProps {
   searchParams: Promise<{
     query?: string;
     type?: string;
-    location?: string;
+    city?: string;
     transmission?: string;
     fuel?: string;
     delivery?: string;
@@ -90,7 +90,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams.query || "";
   const type = resolvedSearchParams.type || "";
-  const location = resolvedSearchParams.location || "";
+  const city = resolvedSearchParams.city || "";
   const transmission = resolvedSearchParams.transmission || "";
   const fuel = resolvedSearchParams.fuel || "";
   const delivery = resolvedSearchParams.delivery || "";
@@ -104,7 +104,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     // Build DB Query - only show approved vehicles
     const dbQuery: any = { status: "approved" };
     if (type) dbQuery.type = type;
-    if (location) dbQuery.location = location;
+    if (city) dbQuery["location.city"] = city;
     if (transmission) dbQuery["specs.transmission"] = transmission;
     if (fuel) dbQuery["specs.fuelType"] = fuel;
     if (delivery === "true") dbQuery["specs.deliveryAvailable"] = true;
@@ -132,7 +132,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     // Filter fallback vehicles in-memory
     vehicles = FALLBACK_VEHICLES.filter(v => {
       if (type && v.type !== type) return false;
-      if (location && v.location !== location) return false;
+      if (city && v.location.city !== city) return false;
       if (transmission && v.specs.transmission !== transmission) return false;
       if (fuel && v.specs.fuelType !== fuel) return false;
       if (delivery === "true" && !v.specs.deliveryAvailable) return false;
@@ -150,7 +150,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   // Active filters helper count
   const activeFiltersCount =
     (type ? 1 : 0) +
-    (location ? 1 : 0) +
+    (city ? 1 : 0) +
     (transmission ? 1 : 0) +
     (fuel ? 1 : 0) +
     (delivery ? 1 : 0);
@@ -198,29 +198,22 @@ export default async function ExplorePage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            {/* Location Select */}
+            {/* City Select */}
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Location</label>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-2">City</label>
               <select
-                name="location"
-                defaultValue={location}
+                name="city"
+                defaultValue={city}
                 onChange={(e) => e.target.form?.submit()}
                 className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
               >
-                <option value="">All Locations</option>
-                <optgroup label="Dharamshala Areas" className="bg-mountain-black-light">
-                  <option value="McLeod Ganj">McLeod Ganj</option>
-                  <option value="Bhagsu">Bhagsu</option>
-                  <option value="Dharamkot">Dharamkot</option>
-                  <option value="Naddi">Naddi</option>
-                  <option value="Kotwali Bazaar">Kotwali Bazaar</option>
-                </optgroup>
-                <optgroup label="Bir Billing Areas" className="bg-mountain-black-light">
-                  <option value="Bir Colony">Bir Colony</option>
-                  <option value="Chowgan">Chowgan</option>
-                  <option value="Landing Site">Landing Site</option>
-                  <option value="Billing Road">Billing Road</option>
-                </optgroup>
+                <option value="">All Cities</option>
+                <option value="Dharamshala">Dharamshala</option>
+                <option value="Bir">Bir Billing</option>
+                <option value="Manali">Manali</option>
+                <option value="Shimla">Shimla</option>
+                <option value="Kasol">Kasol / Parvati Valley</option>
+                <option value="Dalhousie">Dalhousie</option>
               </select>
             </div>
 

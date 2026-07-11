@@ -155,7 +155,7 @@ export default function VehicleDetailsClient({
               <h1 className="font-heading font-black text-2xl sm:text-3xl text-snow-white">{vehicle.title}</h1>
               <div className="flex items-center gap-1 text-gray-400 text-sm mt-2">
                 <MapPin className="w-4 h-4 text-forest-green-light" />
-                <span>Available at {vehicle.location}</span>
+                <span>Available at {vehicle.location.area}, {vehicle.location.city}</span>
               </div>
             </div>
 

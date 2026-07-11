@@ -12,7 +12,7 @@ export interface VehicleProp {
   brand: string;
   model: string;
   pricePerDay: number;
-  location: string;
+  location: { area: string; city: string; state: string; country: string; };
   images: string[];
   specs: {
     engineCc?: number;
@@ -113,7 +113,7 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
         {/* Location Info */}
         <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
           <MapPin className="w-3.5 h-3.5 text-forest-green-light" />
-          <span>{vehicle.location}</span>
+          <span>{vehicle.location.area}, {vehicle.location.city}</span>
         </div>
 
         {/* Spec Tags */}
