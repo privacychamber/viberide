@@ -87,7 +87,7 @@ export default async function Home() {
           </div>
 
           <h1 className="font-heading font-black text-4xl sm:text-6xl tracking-tight leading-tight text-snow-white mb-6">
-            Discover Dharamshala & Bir <br />
+            Discover Himachal Pradesh <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange via-amber-500 to-emerald-400">
               On Your Own Wheels
             </span>
@@ -262,7 +262,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="py-12 bg-mountain-black-light/20 border-t border-white/5 text-center text-xs text-gray-600">
         <p className="mb-2">© {new Date().getFullYear()} Viberide Rental Technologies. Made with ❤️ in Himachal.</p>
-        <p className="text-[10px] text-gray-700">Providing self-drive scooty, bike, and car rental service in McLeod Ganj, Bhagsu, Dharamkot, Bir Colony, and Landing Site.</p>
+        <p className="text-[10px] text-gray-700">Providing self-drive scooty, bike, and car rental service across Dharamshala, Bir, Manali, Shimla, Kasol, and Dalhousie.</p>
       </footer>
 
       <BottomNav />
