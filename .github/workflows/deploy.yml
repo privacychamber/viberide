@@ -1,45 +1,51 @@
-name: Deploy to Namecheap
+name: Deploy to Namecheap via FTP
 
 on:
   push:
     branches:
-      - main
+      - main # Make sure your branch is named main (or master)
 
 jobs:
-  deploy:
-    name: Deploy App
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-    
     steps:
-      - name: SSH into Namecheap and Deploy
-        uses: appleboy/ssh-action@v1.0.3
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.NAMECHEAP_HOST }}
-          username: ${{ secrets.NAMECHEAP_USERNAME }}
-          key: ${{ secrets.NAMECHEAP_SSH_KEY }}
-          port: ${{ secrets.NAMECHEAP_PORT }}
-          script: |
-            # Replace /home/YOUR_CPANEL_USERNAME/public_html with your actual path!
-            export APP_DIR="/home/${{ secrets.NAMECHEAP_USERNAME }}/public_html"
-            
-            echo "Navigating to app directory: $APP_DIR"
-            cd $APP_DIR
-            
-            echo "Pulling latest code from GitHub..."
-            git pull origin main
-            
-            echo "Entering Node.js virtual environment..."
-            # Replace '20' with the actual node version you selected in cPanel
-            source /home/${{ secrets.NAMECHEAP_USERNAME }}/nodevenv/public_html/20/bin/activate
-            
-            echo "Installing dependencies..."
-            npm install
-            
-            echo "Building Next.js for production..."
-            npm run build
-            
-            echo "Restarting Phusion Passenger (cPanel Node.js)..."
-            mkdir -p tmp
-            touch tmp/restart.txt
-            
-            echo "Deployment successful! 🚀"
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Next.js App
+        run: npm run build
+
+      - name: 📂 Prepare Standalone Directory
+        run: |
+          # Next.js standalone doesn't copy public or static folders by default, so we do it manually
+          cp -r .next/static .next/standalone/.next/
+          cp -r public .next/standalone/
+          
+          # Replace the default server with our custom Namecheap-compatible server
+          cp final_server.js .next/standalone/server.js
+      
+      - name: 🚀 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: .next/standalone/
+          server-dir: ./
+          # Exclude production logs and env files so they aren't overwritten
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .env*
+            error.log
+            passenger.log
