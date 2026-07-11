@@ -12,7 +12,7 @@ export interface VehicleProp {
   brand: string;
   model: string;
   pricePerDay: number;
-  location: { area: string; city: string; state: string; country: string; };
+  location: { area: string; city: string; state: string; country: string; } | string | any;
   images: string[];
   specs: {
     engineCc?: number;
