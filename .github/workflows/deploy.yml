@@ -34,7 +34,8 @@ jobs:
           cp -r public .next/standalone/
           
           # Replace the default server with our custom Namecheap-compatible server
-          cp final_server.js .next/standalone/server.js
+          # We name it next_server.js because the wrapper will be server.js
+          cp final_server.js .next/standalone/next_server.js
           
           # Zip the contents of the standalone directory to avoid FTP timeouts on thousands of files
           cd .next/standalone
@@ -44,6 +45,33 @@ jobs:
           # Create a clean folder just for the zip upload
           mkdir deploy_upload
           mv deploy.zip deploy_upload/
+          
+          # Create an auto-extracting server script
+          cat << 'EOF' > deploy_upload/server.js
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
+          
+          const zipPath = path.join(__dirname, 'deploy.zip');
+          
+          if (fs.existsSync(zipPath)) {
+            console.log('Found deploy.zip, extracting...');
+            try {
+              execSync('unzip -o deploy.zip', { stdio: 'inherit' });
+              fs.unlinkSync(zipPath);
+              console.log('Extraction complete.');
+            } catch (err) {
+              console.error('Error extracting:', err);
+            }
+          }
+          
+          // Require the actual Next.js server
+          require('./next_server.js');
+          EOF
+          
+          # Create a restart.txt to tell Passenger to automatically restart the Node.js app
+          mkdir -p deploy_upload/tmp
+          date > deploy_upload/tmp/restart.txt
       
       - name: 🚀 Sync files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
