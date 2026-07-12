@@ -35,6 +35,15 @@ jobs:
           
           # Replace the default server with our custom Namecheap-compatible server
           cp final_server.js .next/standalone/server.js
+          
+          # Zip the contents of the standalone directory to avoid FTP timeouts on thousands of files
+          cd .next/standalone
+          zip -r ../../deploy.zip ./*
+          cd ../../
+          
+          # Create a clean folder just for the zip upload
+          mkdir deploy_upload
+          mv deploy.zip deploy_upload/
       
       - name: 🚀 Sync files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -42,7 +51,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: .next/standalone/
+          local-dir: deploy_upload/
           server-dir: ./
           # Exclude production logs and env files so they aren't overwritten
           exclude: |
