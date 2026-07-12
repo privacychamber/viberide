@@ -2,7 +2,9 @@ import mongoose, { Schema, Model } from "mongoose";
 
 export interface IUser {
   name: string;
+  email?: string;
   phone: string;
+  password?: string;
   role: "renter" | "owner" | "admin";
   license?: {
     frontUrl?: string;
@@ -19,7 +21,9 @@ export interface IUser {
 const UserSchema: Schema<IUser> = new Schema(
   {
     name: { type: String, required: true },
+    email: { type: String, unique: true, sparse: true },
     phone: { type: String, required: true, unique: true },
+    password: { type: String },
     role: {
       type: String,
       enum: ["renter", "owner", "admin"],

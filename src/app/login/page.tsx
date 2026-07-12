@@ -3,55 +3,41 @@
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
-import { Compass, Phone, Key, User, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Phone, Lock, Eye, EyeOff, Compass } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/profile";
+  const registered = searchParams.get("registered");
 
   const [phone, setPhone] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("renter");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone || phone.length < 10) {
       setError("Please enter a valid 10-digit phone number.");
       return;
     }
-    setError("");
-    setLoading(true);
-
-    // Simulate OTP sending delay
-    setTimeout(() => {
-      setLoading(false);
-      setOtpSent(true);
-      setOtp("123456"); // Pre-fill mock OTP for easy testing
-    }, 1000);
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) {
-      setError("Please enter the 6-digit OTP.");
+    if (!password) {
+      setError("Please enter your password.");
       return;
     }
+    
     setError("");
     setLoading(true);
 
     try {
       const res = await signIn("credentials", {
         phone,
-        name,
-        otp,
-        role,
+        password,
         redirect: false,
       });
 
@@ -70,150 +56,108 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-mountain-black-light/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-      {/* Decorative gradient blur */}
-      <div className="absolute -top-24 -left-24 w-48 h-48 bg-forest-green-dark/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-sunset-orange/20 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="text-center mb-8 relative z-10">
-        <span className="inline-flex p-3 bg-forest-green/10 rounded-2xl text-sunset-orange font-bold text-2xl mb-3">
-          🛵
-        </span>
-        <h2 className="font-heading font-black text-2xl text-snow-white">Welcome to Viberide</h2>
-        <p className="text-xs text-gray-500 mt-1">Enter your phone number to sign in or create an account.</p>
+    <div className="w-full max-w-md mx-auto relative z-10 flex flex-col items-center">
+      
+      {/* Back Link */}
+      <div className="w-full mb-6 text-left">
+        <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white transition-colors text-sm font-medium">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Link>
       </div>
+
+      {/* Header */}
+      <div className="w-full mb-8 text-center">
+        <h1 className="font-heading font-black text-3xl md:text-4xl text-snow-white mb-2 tracking-tight">Welcome Back</h1>
+        <p className="text-gray-400 text-sm">Login to continue to Viberide</p>
+      </div>
+
+      {registered && (
+        <div className="w-full mb-6 p-4 bg-forest-green/10 border border-forest-green/20 text-forest-green-light rounded-xl text-sm font-medium">
+          Account created successfully! Please login.
+        </div>
+      )}
 
       {error && (
-        <p className="text-xs font-semibold text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 mb-6 leading-relaxed">
+        <div className="w-full mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm font-medium">
           {error}
-        </p>
+        </div>
       )}
 
-      {!otpSent ? (
-        <form onSubmit={handleSendOtp} className="space-y-5 relative z-10">
-          <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Phone Number</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-500" />
-              <input
-                type="tel"
-                required
-                placeholder="Enter 10-digit number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                className="w-full bg-mountain-black border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-snow-white focus:outline-none focus:border-sunset-orange focus:ring-0"
-              />
-            </div>
+      {/* Form */}
+      <form onSubmit={handleLogin} className="w-full space-y-6">
+        
+        {/* Phone Number */}
+        <div>
+          <label className="block text-xs font-bold text-gray-400 mb-2">Phone Number</label>
+          <div className="relative">
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <input
+              type="tel"
+              required
+              placeholder="+91 98765 43210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+            />
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-forest-green-light to-forest-green hover:from-sunset-orange hover:to-sunset-orange-dark text-snow-white font-bold text-sm rounded-xl shadow-lg transition-all hover:scale-102 cursor-pointer flex items-center justify-center"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Send OTP"
-            )}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleLogin} className="space-y-5 relative z-10">
-          {/* Capture Name for New Registration */}
-          <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Full Name (New Users Only)</label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Enter full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-mountain-black border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-snow-white focus:outline-none focus:border-sunset-orange focus:ring-0"
-              />
-            </div>
+        {/* Password */}
+        <div>
+          <label className="block text-xs font-bold text-gray-400 mb-2">Password</label>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
+        </div>
 
-          {/* Role Selection for New Registration */}
-          <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">I want to (New Users Only)</label>
-            <div className="flex bg-mountain-black border border-white/10 rounded-xl p-1">
-              <button
-                type="button"
-                onClick={() => setRole("renter")}
-                className={`flex-1 text-xs py-2.5 rounded-lg font-bold transition-all ${
-                  role === "renter" ? "bg-white/10 text-snow-white shadow-sm" : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                Rent Vehicles
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("owner")}
-                className={`flex-1 text-xs py-2.5 rounded-lg font-bold transition-all ${
-                  role === "owner" ? "bg-white/10 text-snow-white shadow-sm" : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                List My Vehicle
-              </button>
-            </div>
-          </div>
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-4 mt-4 bg-[#10b981] hover:bg-[#059669] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer flex items-center justify-center text-[15px]"
+        >
+          {loading ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            "Login"
+          )}
+        </button>
+      </form>
 
-          <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Enter 6-Digit OTP</label>
-            <div className="relative">
-              <Key className="absolute left-3 top-3 w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                required
-                maxLength={6}
-                placeholder="6-digit verification code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className="w-full bg-mountain-black border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-snow-white focus:outline-none focus:border-sunset-orange focus:ring-0"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-sunset-orange to-sunset-orange-dark hover:from-sunset-orange-dark hover:to-sunset-orange text-snow-white font-bold text-sm rounded-xl shadow-lg transition-all hover:scale-102 cursor-pointer flex items-center justify-center"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Verify & Login"
-            )}
-          </button>
-        </form>
-      )}
-
-      {/* Demo Hints Section */}
-      <div className="mt-8 pt-6 border-t border-white/5 text-left text-xs text-gray-500">
-        <p className="font-bold mb-2 flex items-center gap-1 text-gray-400">
-          <Compass className="w-3.5 h-3.5 text-sunset-orange" />
-          <span>Demo Account Credentials:</span>
-        </p>
-        <ul className="space-y-1 text-[11px] list-disc list-inside">
-          <li>Admin: <strong className="text-gray-400">9999999999</strong></li>
-          <li>Owner: <strong className="text-gray-400">8888888888</strong></li>
-          <li>Renter: <strong className="text-gray-400">6666666666</strong></li>
-          <li>Any other number creates a new renter profile.</li>
-          <li>Default OTP is <strong className="text-gray-400">123456</strong>.</li>
-        </ul>
+      {/* Signup Link */}
+      <div className="mt-8 text-sm text-gray-400">
+        Don't have an account?{" "}
+        <Link href="/signup" className="text-[#10b981] font-bold hover:underline">
+          Create Account &rarr;
+        </Link>
       </div>
+
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0">
+    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0 font-sans">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center px-4 py-12">
-        <Suspense fallback={<div>Loading form...</div>}>
+      <main className="flex-grow flex items-center justify-center px-4 py-8 max-w-2xl mx-auto w-full">
+        <Suspense fallback={<div className="text-gray-400">Loading...</div>}>
           <LoginForm />
         </Suspense>
       </main>

@@ -1,5 +1,6 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 
@@ -23,41 +24,36 @@ declare module "next-auth" {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Phone OTP",
+      name: "Phone and Password",
       credentials: {
         phone: { label: "Phone Number", type: "text", placeholder: "e.g., 9876543210" },
-        name: { label: "Full Name", type: "text", placeholder: "New users only" },
-        otp: { label: "OTP", type: "text", placeholder: "e.g., 123456" },
-        role: { label: "Role", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.phone) {
-          throw new Error("Phone number is required");
+        if (!credentials?.phone || !credentials?.password) {
+          throw new Error("Phone number and password are required");
         }
 
         const phone = credentials.phone as string;
-        const name = (credentials.name as string) || "Viberider";
-        const otp = credentials.otp as string;
-        const requestedRole = credentials.role === "owner" ? "owner" : "renter";
-
-        // Simple mock OTP validation (accepts any 6-digit number or 123456)
-        if (otp && otp.length !== 6) {
-          throw new Error("Invalid OTP format. Must be 6 digits.");
-        }
+        const password = credentials.password as string;
 
         await dbConnect();
 
-        // Find or create user
-        let user = await User.findOne({ phone });
+        // Find user by phone
+        const user = await User.findOne({ phone });
 
         if (!user) {
-          user = await User.create({
-            name,
-            phone,
-            role: requestedRole,
-            verified: false,
-            license: { status: "none" },
-          });
+          throw new Error("Invalid phone number or password");
+        }
+        
+        // Verify password
+        if (!user.password) {
+          throw new Error("Account was created via OTP. Please contact support.");
+        }
+        
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+          throw new Error("Invalid phone number or password");
         }
 
         return {
