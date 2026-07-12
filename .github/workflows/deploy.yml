@@ -39,7 +39,7 @@ jobs:
           
           # Zip the contents of the standalone directory to avoid FTP timeouts on thousands of files
           cd .next/standalone
-          zip -r ../../deploy.zip ./*
+          zip -r ../../deploy.zip .
           cd ../../
           
           # Create a clean folder just for the zip upload
@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy_upload/
-          server-dir: viberide.in/
+          server-dir: ./
           # Exclude production logs and env files so they aren't overwritten
           exclude: |
             **/.git*
