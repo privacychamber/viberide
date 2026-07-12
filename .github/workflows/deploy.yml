@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy_upload/
-          server-dir: ./
+          server-dir: viberide.in/
           # Exclude production logs and env files so they aren't overwritten
           exclude: |
             **/.git*
