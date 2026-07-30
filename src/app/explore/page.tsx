@@ -201,19 +201,15 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             {/* City Select */}
             <div>
               <label className="block text-xs font-bold uppercase text-gray-500 mb-2">City</label>
-              <select
-                name="city"
-                defaultValue={city}
-                className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
-              >
-                <option value="">All Cities</option>
-                <option value="Dharamshala">Dharamshala</option>
-                <option value="Bir">Bir Billing</option>
-                <option value="Manali">Manali</option>
-                <option value="Shimla">Shimla</option>
-                <option value="Kasol">Kasol / Parvati Valley</option>
-                <option value="Dalhousie">Dalhousie</option>
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="city"
+                  defaultValue={city}
+                  placeholder="e.g. Mumbai, Goa, Kerala"
+                  className="w-full bg-mountain-black border border-white/10 rounded-xl px-3 py-2 text-sm text-snow-white focus:outline-none focus:border-forest-green-light"
+                />
+              </div>
             </div>
 
             {/* Vehicle Type */}
@@ -304,7 +300,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
           {/* Results Summary */}
           <div className="mb-6 flex justify-between items-center text-xs text-gray-400">
             <span>
-              Showing <strong className="text-snow-white">{vehicles.length}</strong> vehicles in Dharamshala & Bir
+              Showing <strong className="text-snow-white">{vehicles.length}</strong> vehicles {city ? `in ${city}` : "across India"}
             </span>
           </div>
 
