@@ -16,7 +16,7 @@ const FALLBACK_VEHICLES = [
     brand: "Royal Enfield",
     model: "Himalayan 450",
     pricePerDay: 1800,
-    location: { area: "McLeod Ganj", city: "Dharamshala", state: "Himachal Pradesh", country: "India" },
+    location: { area: "Anjuna Beach", city: "Goa", state: "Goa", country: "India" },
     images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 450, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -27,7 +27,7 @@ const FALLBACK_VEHICLES = [
     brand: "Honda",
     model: "Activa 6G",
     pricePerDay: 450,
-    location: { area: "Bir Colony", city: "Bir", state: "Himachal Pradesh", country: "India" },
+    location: { area: "Indiranagar", city: "Bangalore", state: "Karnataka", country: "India" },
     images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 110, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
   },
@@ -38,7 +38,7 @@ const FALLBACK_VEHICLES = [
     brand: "Mahindra",
     model: "Thar 4x4",
     pricePerDay: 3500,
-    location: { area: "Landing Site", city: "Bir", state: "Himachal Pradesh", country: "India" },
+    location: { area: "Connaught Place", city: "Delhi", state: "Delhi", country: "India" },
     images: ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"],
     specs: { engineCc: 2184, fuelType: "Diesel", transmission: "Manual", seatingCapacity: 4, deliveryAvailable: true }
   }
@@ -76,12 +76,12 @@ export default async function Home() {
         <div className="relative z-10 w-full md:w-1/2 flex flex-col items-start pt-10 md:pt-0">
           <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-green-dark/30 border border-forest-green/30 text-xs font-semibold text-forest-green-light">
             <span className="w-2 h-2 rounded-full bg-forest-green-light animate-pulse" />
-            Viberide Rental Network
+            India's Premier Rental Network 🇮🇳
           </div>
           
           <h1 className="font-heading font-black text-6xl md:text-[5.5rem] tracking-tighter leading-[0.9] text-snow-white mb-6">
             Explore <br />
-            Himachal's <br />
+            India's <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-400">
               Open Roads
             </span>
@@ -97,7 +97,7 @@ export default async function Home() {
               <Search className="w-5 h-5 text-gray-400 mr-3" />
               <input 
                 type="text" 
-                placeholder="Where are you going?" 
+                placeholder="Where will your journey begin? ✨" 
                 name="city"
                 className="w-full bg-transparent border-none outline-none text-mountain-black font-semibold placeholder:text-gray-400 placeholder:font-medium"
               />
@@ -240,7 +240,7 @@ export default async function Home() {
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
             <h3 className="font-heading font-black text-2xl tracking-tighter mb-1">Viberide.</h3>
-            <p className="text-xs text-gray-500 font-medium max-w-xs">Connecting adventure seekers with reliable local vehicles across Himachal Pradesh.</p>
+            <p className="text-xs text-gray-500 font-medium max-w-xs">Connecting adventure seekers with reliable local vehicles across India. 🌏</p>
           </div>
           <div className="flex gap-4">
             <div className="text-right">
