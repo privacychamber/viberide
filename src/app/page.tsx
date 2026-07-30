@@ -95,12 +95,23 @@ export default async function Home() {
           <form action="/explore" className="relative flex items-center w-full max-w-lg bg-white rounded-full p-2 shadow-[0_0_40px_rgba(255,122,69,0.15)] group">
             <div className="flex-1 flex items-center pl-4">
               <Search className="w-5 h-5 text-gray-400 mr-3" />
-              <input 
-                type="text" 
-                placeholder="Where will your journey begin? ✨" 
+              <select 
                 name="city"
-                className="w-full bg-transparent border-none outline-none text-mountain-black font-semibold placeholder:text-gray-400 placeholder:font-medium"
-              />
+                className="w-full bg-transparent border-none outline-none text-mountain-black font-semibold cursor-pointer appearance-none"
+              >
+                <option value="" disabled selected>Where will your journey begin? ✨</option>
+                <option value="All">Explore All India 🇮🇳</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Delhi">Delhi NCR</option>
+                <option value="Goa">Goa</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Pune">Pune</option>
+              </select>
             </div>
             <button
               type="submit"
@@ -115,10 +126,10 @@ export default async function Home() {
         <div className="absolute top-0 right-0 w-full md:w-3/5 h-full opacity-30 md:opacity-100 -z-0 md:z-10 pointer-events-none flex items-center justify-end">
           <div className="relative w-full h-[120%] -mr-[10%] mt-[-10%] mix-blend-screen md:mix-blend-normal">
              <Image 
-                src="/hero-knot.png" 
-                alt="Abstract 3D Shape" 
+                src="/hero-vehicle.png" 
+                alt="Premium Vehicles" 
                 fill
-                className="object-cover md:object-contain object-right transform scale-110 md:scale-125"
+                className="object-cover md:object-contain object-right transform scale-110 md:scale-125 drop-shadow-2xl"
                 priority
              />
           </div>
