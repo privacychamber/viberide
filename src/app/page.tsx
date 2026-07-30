@@ -471,7 +471,10 @@ export default async function Home() {
 
           {/* Newsletter & Copyright */}
           <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 gap-6">
-            <p className="text-xs text-gray-600">© {new Date().getFullYear()} Viberide Rental Technologies. All rights reserved.</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-gray-600">© 2026 Viberide Rental Technologies. All rights reserved.</p>
+              <p className="text-[10px] text-gray-700">A <Link href="https://weareonetechnation.com" target="_blank" className="hover:text-sunset-orange transition-colors">weareonetechnation.com</Link> product.</p>
+            </div>
             
             <div className="flex items-center gap-2">
               <input type="email" placeholder="Enter your email" className="bg-[#0b0f0b] border border-white/10 rounded-full px-6 py-2.5 text-sm text-white focus:outline-none focus:border-sunset-orange min-w-[250px]" />
