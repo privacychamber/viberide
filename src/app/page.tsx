@@ -387,8 +387,8 @@ export default async function Home() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { name: "Delhi", count: "15,000+ Vehicles", image: "https://images.unsplash.com/photo-1587474260580-5a3d76b1f24d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Mumbai", count: "12,000+ Vehicles", image: "https://images.unsplash.com/photo-1522204629497-6c2e39922e96?auto=format&fit=crop&w=400&q=80" },
+            { name: "Delhi", count: "15,000+ Vehicles", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80" },
+            { name: "Mumbai", count: "12,000+ Vehicles", image: "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=400&q=80" },
             { name: "Bangalore", count: "10,000+ Vehicles", image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=400&q=80" },
             { name: "Goa", count: "8,500+ Vehicles", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80" },
             { name: "Jaipur", count: "7,500+ Vehicles", image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=400&q=80" },
@@ -406,44 +406,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 8. APP PROMO BANNER */}
-      <section className="pb-24 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
-         <div className="bg-[#141a14] border border-white/5 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-10">
-            <div className="flex items-center gap-6">
-               <div className="w-16 h-16 rounded-full bg-forest-green-dark flex items-center justify-center border border-forest-green shrink-0">
-                 <MapPin className="w-8 h-8 text-forest-green-light" />
-               </div>
-               <div>
-                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-white mb-2">The Viberide App</h2>
-                 <p className="text-gray-400 text-sm">Your journey, in your pocket.<br/>Book, manage, and explore on the go.</p>
-               </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-               {/* QR Code Placeholder */}
-               <div className="w-24 h-24 bg-white p-2 rounded-xl hidden lg:block">
-                  <div className="w-full h-full border-4 border-dashed border-gray-300 flex items-center justify-center text-[10px] text-gray-400 text-center font-bold">QR Code</div>
-               </div>
-               
-               <div className="flex flex-col gap-3">
-                 <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl transition-colors min-w-[200px]">
-                    <Play className="w-6 h-6" />
-                    <div className="text-left">
-                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider leading-none">GET IT ON</p>
-                      <p className="font-bold text-sm leading-tight">Google Play</p>
-                    </div>
-                 </button>
-                 <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl transition-colors min-w-[200px]">
-                    <Apple className="w-6 h-6 fill-white" />
-                    <div className="text-left">
-                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider leading-none">Download on the</p>
-                      <p className="font-bold text-sm leading-tight">App Store</p>
-                    </div>
-                 </button>
-               </div>
-            </div>
-         </div>
-      </section>
 
       {/* 9. MEGA FOOTER */}
       <footer className="bg-[#141a14]/80 border-t border-white/5 pt-20 pb-10 px-6 sm:px-12 md:px-20">
