@@ -5,7 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import VehicleCard from "@/components/VehicleCard";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
-import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock, Calendar, ChevronDown, CheckCircle2, Navigation, Headphones, ChevronRight, Apple, Play } from "lucide-react";
+import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock, Calendar, ChevronDown, CheckCircle2, Navigation, Headphones, ChevronRight, Apple, Play, Bike, Flame, CarFront, Sparkles, Map, Tent, Users } from "lucide-react";
 
 // Static fallback items to ensure the app works beautifully even before DB is seeded or connected
 const FALLBACK_VEHICLES = [
@@ -243,20 +243,22 @@ export default async function Home() {
         {/* Horizontal scroll container */}
         <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x">
           {[
-            { name: "Scooters", icon: "🛵", image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80" },
-            { name: "Motorcycles", icon: "🏍️", image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80" },
-            { name: "SUVs & Cars", icon: "🚙", image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80" },
-            { name: "EV Rentals", icon: "⚡", image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80" },
-            { name: "Luxury Cars", icon: "✨", image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80" },
-            { name: "Road Trips", icon: "🛣️", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80" },
-            { name: "Weekend Getaways", icon: "🏕️", image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Group Travel", icon: "🚌", image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80" },
+            { name: "Scooters", icon: <Bike className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80" },
+            { name: "Motorcycles", icon: <Flame className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80" },
+            { name: "SUVs & Cars", icon: <CarFront className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80" },
+            { name: "EV Rentals", icon: <Zap className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80" },
+            { name: "Luxury Cars", icon: <Sparkles className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80" },
+            { name: "Road Trips", icon: <Map className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80" },
+            { name: "Weekend Getaways", icon: <Tent className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=400&q=80" },
+            { name: "Group Travel", icon: <Users className="w-6 h-6 text-sunset-orange" />, image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80" },
           ].map((cat) => (
-            <Link key={cat.name} href="/explore" className="relative shrink-0 w-48 h-48 rounded-3xl overflow-hidden group snap-start border border-white/5">
+            <Link key={cat.name} href="/explore" className="relative shrink-0 w-48 h-48 rounded-3xl overflow-hidden group snap-start border border-white/5 bg-[#141a14]/80">
               <Image src={cat.image} alt={cat.name} fill className="object-cover opacity-50 group-hover:opacity-70 transition-opacity group-hover:scale-110 duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute inset-0 p-4 flex flex-col justify-end items-center text-center">
-                <span className="text-2xl mb-1">{cat.icon}</span>
+                <div className="mb-3 p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 group-hover:bg-sunset-orange/20 group-hover:border-sunset-orange/30 transition-colors">
+                  {cat.icon}
+                </div>
                 <span className="text-xs font-bold text-white">{cat.name}</span>
               </div>
             </Link>
