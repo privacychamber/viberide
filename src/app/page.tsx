@@ -94,9 +94,22 @@ export default async function Home() {
           </div>
           
           <h1 className="font-heading font-black text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] tracking-tighter leading-[0.95] text-white mb-8 max-w-4xl">
-            Explore India's <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-400 drop-shadow-[0_0_30px_rgba(255,122,69,0.3)]">
-              Open Roads
+            Your Journey. <br />
+            Your Ride. <br />
+            <span className="relative inline-block mt-1 sm:mt-2 pb-2">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange via-amber-400 to-emerald-400 drop-shadow-[0_0_30px_rgba(255,122,69,0.3)]">
+                Your Vibe.
+              </span>
+              <svg className="absolute bottom-0 left-0 w-full h-3 sm:h-4 opacity-80" viewBox="0 0 200 15" preserveAspectRatio="none">
+                <path d="M0,10 Q100,20 200,5 Q100,15 0,10" fill="url(#vibe-gradient)" />
+                <defs>
+                  <linearGradient id="vibe-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#ff7a45" />
+                    <stop offset="50%" stopColor="#fbbf24" />
+                    <stop offset="100%" stopColor="#34d399" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </span>
           </h1>
 
