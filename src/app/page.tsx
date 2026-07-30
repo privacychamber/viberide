@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import VehicleCard from "@/components/VehicleCard";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
-import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight } from "lucide-react";
+import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock } from "lucide-react";
 
 // Static fallback items to ensure the app works beautifully even before DB is seeded or connected
 const FALLBACK_VEHICLES = [
@@ -48,7 +49,7 @@ async function getFeaturedVehicles() {
     await dbConnect();
     const dbVehicles = await Vehicle.find({}).limit(3).lean();
     if (dbVehicles && dbVehicles.length > 0) {
-      return dbVehicles.map(v => ({
+      return dbVehicles.map((v: any) => ({
         ...v,
         _id: v._id.toString(),
         owner: v.owner.toString(),
@@ -66,203 +67,191 @@ export default async function Home() {
   const vehicles = await getFeaturedVehicles();
 
   return (
-    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0">
+    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0 overflow-x-hidden">
       <Navbar />
 
-      {/* Hero Section */}
-      <header className="relative py-24 md:py-36 px-4 sm:px-8 text-center flex flex-col items-center justify-center overflow-hidden border-b border-white/5">
-        {/* Background Overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-forest-green-dark/30 via-mountain-black to-mountain-black z-0" />
-        
-        {/* Visual Background image overlay */}
-        <div 
-          className="absolute inset-0 opacity-15 mix-blend-overlay bg-cover bg-center z-0 pointer-events-none"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80')" }}
-        />
-
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-sunset-orange mb-6 hover:scale-105 transition-transform">
-            <Compass className="w-3.5 h-3.5" />
-            <span>Himachal's Hyperlocal Rental Platform</span>
+      {/* NEW HERO SECTION - 2 Column Layout */}
+      <header className="relative w-full min-h-[90vh] flex flex-col md:flex-row items-center justify-between px-6 sm:px-12 md:px-20 pt-24 pb-12">
+        {/* Left Column - Typography & Search */}
+        <div className="relative z-10 w-full md:w-1/2 flex flex-col items-start pt-10 md:pt-0">
+          <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-green-dark/30 border border-forest-green/30 text-xs font-semibold text-forest-green-light">
+            <span className="w-2 h-2 rounded-full bg-forest-green-light animate-pulse" />
+            Viberide Rental Network
           </div>
-
-          <h1 className="font-heading font-black text-4xl sm:text-6xl tracking-tight leading-tight text-snow-white mb-6">
-            Discover Himachal Pradesh <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange via-amber-500 to-emerald-400">
-              On Your Own Wheels
+          
+          <h1 className="font-heading font-black text-6xl md:text-[5.5rem] tracking-tighter leading-[0.9] text-snow-white mb-6">
+            Explore <br />
+            Himachal's <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-400">
+              Open Roads
             </span>
           </h1>
 
-          <p className="text-gray-400 text-base sm:text-xl max-w-2xl mb-10 leading-relaxed">
-            Rent scooters, motorcycles, and SUVs directly from local hosts. Fully verified documents, instant booking confirmation, and airport delivery.
+          <p className="text-gray-400 text-lg md:text-xl max-w-md mb-10 leading-relaxed font-medium">
+            Rent scooters, motorcycles, and SUVs directly from local hosts. Verified, secure, and ready for your next adventure.
           </p>
 
-          {/* Quick Search CTA */}
-          <form action="/explore" className="w-full max-w-md bg-mountain-black-light/80 backdrop-blur-xl border border-white/10 p-2.5 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl">
-            <div className="flex-1 flex items-center gap-2 px-3 py-2 text-left">
-              <MapPin className="w-5 h-5 text-sunset-orange shrink-0" />
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase font-bold">Select City</p>
-                <select name="city" className="bg-transparent text-sm font-semibold text-snow-white focus:outline-none border-none p-0 cursor-pointer w-full">
-                  <option className="bg-mountain-black-light text-snow-white" value="">All Himachal</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Dharamshala">Dharamshala</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Bir">Bir</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Manali">Manali</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Shimla">Shimla</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Kasol">Kasol</option>
-                  <option className="bg-mountain-black-light text-snow-white" value="Dalhousie">Dalhousie</option>
-                </select>
-              </div>
+          {/* Upwork Style Floating Search Pill */}
+          <form action="/explore" className="relative flex items-center w-full max-w-lg bg-white rounded-full p-2 shadow-[0_0_40px_rgba(255,122,69,0.15)] group">
+            <div className="flex-1 flex items-center pl-4">
+              <Search className="w-5 h-5 text-gray-400 mr-3" />
+              <input 
+                type="text" 
+                placeholder="Where are you going?" 
+                name="city"
+                className="w-full bg-transparent border-none outline-none text-mountain-black font-semibold placeholder:text-gray-400 placeholder:font-medium"
+              />
             </div>
             <button
               type="submit"
-              className="bg-gradient-to-r from-sunset-orange to-sunset-orange-dark hover:scale-102 hover:shadow-lg hover:shadow-sunset-orange/20 text-snow-white py-3 sm:py-0 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="bg-mountain-black text-snow-white hover:bg-sunset-orange px-8 py-3 rounded-full font-bold text-sm transition-colors cursor-pointer"
             >
-              Browse Vehicles
-              <ArrowRight className="w-4 h-4" />
+              Search
             </button>
           </form>
         </div>
+
+        {/* Right Column - Bleeding 3D Image */}
+        <div className="absolute top-0 right-0 w-full md:w-3/5 h-full opacity-30 md:opacity-100 -z-0 md:z-10 pointer-events-none flex items-center justify-end">
+          <div className="relative w-full h-[120%] -mr-[10%] mt-[-10%] mix-blend-screen md:mix-blend-normal">
+             <Image 
+                src="/hero-knot.png" 
+                alt="Abstract 3D Shape" 
+                fill
+                className="object-cover md:object-contain object-right transform scale-110 md:scale-125"
+                priority
+             />
+          </div>
+          {/* subtle gradient fade for blending on mobile */}
+          <div className="absolute inset-0 bg-gradient-to-r from-mountain-black to-transparent md:hidden" />
+        </div>
       </header>
 
-      {/* Vehicle Categories */}
-      <section className="py-12 px-4 sm:px-8 max-w-7xl mx-auto w-full">
-        <h2 className="font-heading font-extrabold text-2xl text-snow-white mb-8 flex items-center gap-2">
-          <span>Choose Your Category</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-sunset-orange" />
-        </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link
-            href="/explore?type=scooter"
-            className="group relative bg-mountain-black-light border border-white/5 hover:border-forest-green p-6 rounded-2xl flex flex-col items-start gap-4 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-forest-green-dark/10 rounded-full blur-xl group-hover:bg-forest-green/20 transition-colors" />
-            <div className="w-10 h-10 rounded-xl bg-forest-green/10 flex items-center justify-center text-forest-green-light font-bold">🛵</div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white">Scooters</h3>
-              <p className="text-xs text-gray-500">Perfect for local commuting. From ₹400/day.</p>
+      {/* BENTO BOX GRID: Categories & Trust */}
+      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full z-10 relative">
+        <div className="mb-12">
+          <h2 className="font-heading font-black text-4xl md:text-5xl text-snow-white tracking-tight">
+            Everything you need. <br />
+            <span className="text-gray-500">Right where you need it.</span>
+          </h2>
+        </div>
+
+        {/* Bento Grid Container */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[250px]">
+          
+          {/* Large Feature Card (Spans 2 cols, 2 rows) */}
+          <Link href="/explore?type=bike" className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-sunset-orange/50 transition-colors p-8 flex flex-col justify-end">
+            <Image 
+              src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" 
+              alt="Motorcycles" 
+              fill
+              className="object-cover opacity-40 group-hover:opacity-50 transition-opacity duration-500 group-hover:scale-105"
+            />
+            <div className="absolute top-6 left-6 bg-sunset-orange text-mountain-black text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-lg">
+              Most Popular
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-3xl font-black mb-2">Motorcycles</h3>
+              <p className="text-gray-300 font-medium max-w-sm">Conquer the mountain passes with our premium fleet of adventure bikes.</p>
             </div>
           </Link>
 
-          <Link
-            href="/explore?type=bike"
-            className="group relative bg-mountain-black-light border border-white/5 hover:border-forest-green p-6 rounded-2xl flex flex-col items-start gap-4 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-colors" />
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 font-bold">🏍️</div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white">Motorbikes</h3>
-              <p className="text-xs text-gray-500">Ride the mountain bends. From ₹900/day.</p>
+          {/* Standard Bento Card */}
+          <Link href="/explore?type=scooter" className="group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-white/20 transition-all p-6 flex flex-col">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-forest-green/20 rounded-full blur-2xl group-hover:bg-forest-green/40 transition-colors" />
+            <div className="bg-forest-green/20 w-12 h-12 rounded-full flex items-center justify-center text-forest-green-light mb-auto relative z-10">
+              <Compass className="w-6 h-6" />
+            </div>
+            <div className="relative z-10 mt-6">
+              <h3 className="text-xl font-bold mb-1">Scooters</h3>
+              <p className="text-sm text-gray-400">Perfect for local cafe hopping and city rides.</p>
             </div>
           </Link>
 
-          <Link
-            href="/explore?type=car"
-            className="group relative bg-mountain-black-light border border-white/5 hover:border-forest-green p-6 rounded-2xl flex flex-col items-start gap-4 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-sunset-orange/10 rounded-full blur-xl group-hover:bg-sunset-orange/20 transition-colors" />
-            <div className="w-10 h-10 rounded-xl bg-sunset-orange/10 flex items-center justify-center text-sunset-orange font-bold">🚗</div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white">SUVs & Cars</h3>
-              <p className="text-xs text-gray-500">Comfort for families & groups. From ₹2500/day.</p>
+          {/* Standard Bento Card */}
+          <Link href="/explore?type=car" className="group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-white/20 transition-all p-6 flex flex-col">
+            <div className="absolute top-4 right-4 bg-[#2d5a27] text-snow-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-full z-10">
+              Groups
+            </div>
+            <div className="bg-white/5 w-12 h-12 rounded-full flex items-center justify-center text-white mb-auto relative z-10">
+              <MapPin className="w-6 h-6" />
+            </div>
+            <div className="relative z-10 mt-6">
+              <h3 className="text-xl font-bold mb-1">SUVs & Cars</h3>
+              <p className="text-sm text-gray-400">Comfort and space for families and groups.</p>
             </div>
           </Link>
 
-          <Link
-            href="/explore?fuel=Electric"
-            className="group relative bg-mountain-black-light border border-white/5 hover:border-forest-green p-6 rounded-2xl flex flex-col items-start gap-4 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors" />
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold">⚡</div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white">EV Rentals</h3>
-              <p className="text-xs text-gray-500">Go green in the valley. From ₹600/day.</p>
+          {/* Trust Feature Card (Spans 2 cols) */}
+          <div className="md:col-span-2 relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-mountain-black-light to-mountain-black p-8 flex items-center justify-between group">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
+            <div className="relative z-10 max-w-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="text-emerald-400 w-5 h-5" />
+                <span className="text-emerald-400 font-bold text-sm tracking-wide">100% SECURE</span>
+              </div>
+              <h3 className="text-2xl font-black mb-2">Verified Hosts & Instant KYC</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Skip the paperwork. Upload your documents securely and get approved in minutes. All our hosts are locally vetted for safety and quality.</p>
             </div>
-          </Link>
+            <div className="hidden md:flex relative z-10 bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-md transform rotate-3 group-hover:rotate-0 transition-transform">
+               <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">Status</p>
+                    <p className="font-bold text-snow-white">Verified Profile</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* Featured Rentals */}
-      <section className="py-12 px-4 sm:px-8 max-w-7xl mx-auto w-full border-t border-white/5">
-        <div className="flex items-center justify-between mb-8">
+      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full border-t border-white/5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <h2 className="font-heading font-extrabold text-2xl text-snow-white flex items-center gap-2">
-              <span>Featured Rides</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-forest-green-light" />
+            <h2 className="font-heading font-black text-3xl md:text-4xl text-snow-white tracking-tight mb-2">
+              Featured Rides
             </h2>
-            <p className="text-xs text-gray-500 mt-1">Handpicked quality-verified vehicles nearby.</p>
+            <p className="text-gray-500 font-medium">Handpicked, highly-rated vehicles available near you.</p>
           </div>
           <Link
             href="/explore"
-            className="text-xs font-bold text-sunset-orange hover:text-snow-white hover:underline transition-colors flex items-center gap-1"
+            className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-snow-white px-6 py-3 rounded-full font-bold text-sm transition-all"
           >
-            See All
-            <ArrowRight className="w-3.5 h-3.5" />
+            View Full Fleet
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {vehicles.map((vehicle: any) => (
             <VehicleCard key={vehicle._id} vehicle={vehicle} />
           ))}
         </div>
       </section>
 
-      {/* How It Works & Trust Features */}
-      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full border-t border-white/5">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-snow-white mb-3">
-            Why Rent with Viberide?
-          </h2>
-          <p className="text-sm text-gray-500">
-            A trustworthy hyperlocal community built specifically for long-stay nomads and adventure seekers.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-mountain-black-light/50 border border-white/5 p-6 rounded-2xl flex gap-4 items-start">
-            <div className="p-3 rounded-xl bg-forest-green/10 text-forest-green-light shrink-0">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white mb-2">Instant KYC Verification</h3>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                Upload your driving license and selfie. Our automated queue gets you verified quickly so you can start riding.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-mountain-black-light/50 border border-white/5 p-6 rounded-2xl flex gap-4 items-start">
-            <div className="p-3 rounded-xl bg-sunset-orange/10 text-sunset-orange shrink-0">
-              <Zap className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white mb-2">Doorstep Delivery</h3>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                Filter by vehicles that support delivery. Have your scooter or motorcycle dropped off right at your hostel, cafe, or homestay.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-mountain-black-light/50 border border-white/5 p-6 rounded-2xl flex gap-4 items-start">
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
-              <MessageSquare className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-snow-white mb-2">Direct Owner Chat</h3>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                Connect directly with local owners via WhatsApp as soon as your booking is approved. Get support and tips from local hosts.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="py-12 bg-mountain-black-light/20 border-t border-white/5 text-center text-xs text-gray-600">
-        <p className="mb-2">© {new Date().getFullYear()} Viberide Rental Technologies. Made with ❤️ in Himachal.</p>
-        <p className="text-[10px] text-gray-700">Providing self-drive scooty, bike, and car rental service across Dharamshala, Bir, Manali, Shimla, Kasol, and Dalhousie.</p>
+      <footer className="py-16 px-6 sm:px-12 md:px-20 border-t border-white/5">
+        <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div>
+            <h3 className="font-heading font-black text-2xl tracking-tighter mb-1">Viberide.</h3>
+            <p className="text-xs text-gray-500 font-medium max-w-xs">Connecting adventure seekers with reliable local vehicles across Himachal Pradesh.</p>
+          </div>
+          <div className="flex gap-4">
+            <div className="text-right">
+               <p className="text-snow-white font-bold text-sm mb-1">Legal</p>
+               <div className="flex gap-4 text-xs text-gray-500">
+                 <Link href="#" className="hover:text-snow-white">Privacy</Link>
+                 <Link href="#" className="hover:text-snow-white">Terms</Link>
+               </div>
+            </div>
+          </div>
+        </div>
       </footer>
 
       <BottomNav />
