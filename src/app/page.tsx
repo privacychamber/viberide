@@ -246,13 +246,13 @@ export default async function Home() {
             { name: "Scooters", icon: "🛵", image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80" },
             { name: "Motorcycles", icon: "🏍️", image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80" },
             { name: "SUVs & Cars", icon: "🚙", image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80" },
-            { name: "EV Rentals", icon: "⚡", image: "https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&w=400&q=80" },
-            { name: "Luxury Cars", icon: "✨", image: "https://images.unsplash.com/photo-1503376712394-6d9b0d4a9dc3?auto=format&fit=crop&w=400&q=80" },
+            { name: "EV Rentals", icon: "⚡", image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80" },
+            { name: "Luxury Cars", icon: "✨", image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80" },
             { name: "Road Trips", icon: "🛣️", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80" },
-            { name: "Weekend Getaways", icon: "🏕️", image: "https://images.unsplash.com/photo-1504280387927-31a89c316a30?auto=format&fit=crop&w=400&q=80" },
+            { name: "Weekend Getaways", icon: "🏕️", image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=400&q=80" },
             { name: "Group Travel", icon: "🚌", image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80" },
           ].map((cat) => (
-            <Link key={cat.name} href="/explore" className="relative shrink-0 w-36 h-36 rounded-3xl overflow-hidden group snap-start border border-white/5">
+            <Link key={cat.name} href="/explore" className="relative shrink-0 w-48 h-48 rounded-3xl overflow-hidden group snap-start border border-white/5">
               <Image src={cat.image} alt={cat.name} fill className="object-cover opacity-50 group-hover:opacity-70 transition-opacity group-hover:scale-110 duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute inset-0 p-4 flex flex-col justify-end items-center text-center">
