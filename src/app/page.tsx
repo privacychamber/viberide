@@ -5,7 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import VehicleCard from "@/components/VehicleCard";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
-import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock } from "lucide-react";
+import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock, Calendar, ChevronDown, CheckCircle2, Navigation, Headphones, ChevronRight, Apple, Play } from "lucide-react";
 
 // Static fallback items to ensure the app works beautifully even before DB is seeded or connected
 const FALLBACK_VEHICLES = [
@@ -47,7 +47,7 @@ const FALLBACK_VEHICLES = [
 async function getFeaturedVehicles() {
   try {
     await dbConnect();
-    const dbVehicles = await Vehicle.find({}).limit(3).lean();
+    const dbVehicles = await Vehicle.find({}).limit(4).lean();
     if (dbVehicles && dbVehicles.length > 0) {
       return dbVehicles.map((v: any) => ({
         ...v,
@@ -67,201 +67,443 @@ export default async function Home() {
   const vehicles = await getFeaturedVehicles();
 
   return (
-    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-[#0b0f0b] text-[#f8f9fa] pb-24 md:pb-0 overflow-x-hidden selection:bg-sunset-orange selection:text-white">
       <Navbar />
 
-      {/* NEW HERO SECTION - 2 Column Layout */}
-      <header className="relative w-full min-h-[90vh] flex flex-col md:flex-row items-center justify-between px-6 sm:px-12 md:px-20 pt-24 pb-12">
-        {/* Left Column - Typography & Search */}
-        <div className="relative z-10 w-full md:w-1/2 flex flex-col items-start pt-10 md:pt-0">
-          <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-green-dark/30 border border-forest-green/30 text-xs font-semibold text-forest-green-light">
-            <span className="w-2 h-2 rounded-full bg-forest-green-light animate-pulse" />
+      {/* 1. ADVANCED HERO SECTION */}
+      <header className="relative w-full min-h-[95vh] flex flex-col justify-center px-4 sm:px-10 md:px-16 lg:px-24 pt-32 pb-20 border-b border-white/5">
+        {/* Background Image & Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="/hero-vehicle.png" 
+            alt="Viberide Premium Vehicles" 
+            fill
+            className="object-cover object-[70%_center] opacity-40 mix-blend-screen"
+            priority
+          />
+          {/* Gradients to blend image perfectly into the dark background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0b0f0b] via-[#0b0f0b]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0b0f0b] via-transparent to-[#0b0f0b]" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-start">
+          
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest-green-dark/40 border border-forest-green/50 text-[10px] sm:text-xs font-bold text-forest-green-light uppercase tracking-widest backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-forest-green-light animate-pulse" />
             India's Premier Rental Network 🇮🇳
           </div>
           
-          <h1 className="font-heading font-black text-6xl md:text-[5.5rem] tracking-tighter leading-[0.9] text-snow-white mb-6">
-            Explore <br />
-            India's <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-400">
+          <h1 className="font-heading font-black text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] tracking-tighter leading-[0.95] text-white mb-8 max-w-4xl">
+            Explore India's <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-400 drop-shadow-[0_0_30px_rgba(255,122,69,0.3)]">
               Open Roads
             </span>
           </h1>
 
-          <p className="text-gray-400 text-lg md:text-xl max-w-md mb-10 leading-relaxed font-medium">
-            Rent scooters, motorcycles, and SUVs directly from local hosts. Verified, secure, and ready for your next adventure.
+          <p className="text-gray-300 text-base sm:text-lg md:text-xl max-w-xl mb-8 leading-relaxed font-medium">
+            Rent scooters, motorcycles, and SUVs directly from verified local hosts. Safe, secure, and ready for your next adventure.
           </p>
 
-          {/* Upwork Style Floating Search Pill */}
-          <form action="/explore" className="relative flex items-center w-full max-w-lg bg-white rounded-full p-2 shadow-[0_0_40px_rgba(255,122,69,0.15)] group">
-            <div className="flex-1 flex items-center pl-4">
-              <Search className="w-5 h-5 text-gray-400 mr-3" />
-              <select 
-                name="city"
-                className="w-full bg-transparent border-none outline-none text-mountain-black font-semibold cursor-pointer appearance-none"
-              >
-                <option value="" disabled selected>Where will your journey begin? ✨</option>
-                <option value="All">Explore All India 🇮🇳</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Chandigarh">Chandigarh</option>
-                <option value="Chennai">Chennai</option>
-                <option value="Delhi">Delhi NCR</option>
-                <option value="Goa">Goa</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Kolkata">Kolkata</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Pune">Pune</option>
-              </select>
+          {/* Trust Badges */}
+          <div className="flex flex-wrap items-center gap-4 sm:gap-8 mb-12">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant Booking
             </div>
-            <button
-              type="submit"
-              className="bg-mountain-black text-snow-white hover:bg-sunset-orange px-8 py-3 rounded-full font-bold text-sm transition-colors cursor-pointer"
-            >
-              Search
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-300">
+              <ShieldCheck className="w-4 h-4 text-amber-500" /> Verified Hosts
+            </div>
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-300">
+              <Shield className="w-4 h-4 text-blue-500" /> Secure Payments
+            </div>
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-300">
+              <Headphones className="w-4 h-4 text-sunset-orange" /> 24×7 Support
+            </div>
+          </div>
+
+          {/* Complex Multi-Input Search Bar */}
+          <form action="/explore" className="w-full max-w-5xl bg-[#141a14]/90 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+            
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full border-b md:border-b-0 md:border-r border-white/10">
+              <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
+              <div className="flex flex-col w-full">
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Where</label>
+                <input type="text" name="city" placeholder="Enter city or location" className="bg-transparent border-none outline-none text-white font-semibold text-sm w-full placeholder:text-gray-300" />
+              </div>
+            </div>
+
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full border-b md:border-b-0 md:border-r border-white/10">
+              <Calendar className="w-5 h-5 text-gray-400 shrink-0" />
+              <div className="flex flex-col w-full">
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Pick-up</label>
+                <input type="text" placeholder="Tomorrow, 10:00 AM" className="bg-transparent border-none outline-none text-white font-semibold text-sm w-full placeholder:text-gray-300" />
+              </div>
+            </div>
+
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full border-b md:border-b-0 md:border-r border-white/10">
+              <Calendar className="w-5 h-5 text-gray-400 shrink-0" />
+              <div className="flex flex-col w-full">
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Drop-off</label>
+                <input type="text" placeholder="Sun, 18 May, 10:00 AM" className="bg-transparent border-none outline-none text-white font-semibold text-sm w-full placeholder:text-gray-300" />
+              </div>
+            </div>
+
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full">
+              <Compass className="w-5 h-5 text-gray-400 shrink-0" />
+              <div className="flex flex-col w-full">
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Vehicle Type</label>
+                <select name="type" className="bg-transparent border-none outline-none text-white font-semibold text-sm w-full cursor-pointer appearance-none">
+                  <option className="bg-[#141a14]" value="">All Vehicles</option>
+                  <option className="bg-[#141a14]" value="scooter">Scooters</option>
+                  <option className="bg-[#141a14]" value="bike">Motorcycles</option>
+                  <option className="bg-[#141a14]" value="car">SUVs & Cars</option>
+                </select>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
+            </div>
+
+            <button type="submit" className="w-full md:w-auto bg-gradient-to-r from-sunset-orange to-sunset-orange-dark hover:shadow-[0_0_20px_rgba(255,122,69,0.4)] text-white px-8 py-4 rounded-xl md:rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 shrink-0">
+              <Search className="w-4 h-4" />
+              Search Vehicles
             </button>
           </form>
-        </div>
 
-        {/* Right Column - Bleeding 3D Image */}
-        <div className="absolute top-0 right-0 w-full md:w-3/5 h-full opacity-30 md:opacity-100 -z-0 md:z-10 pointer-events-none flex items-center justify-end">
-          <div className="relative w-full h-[120%] -mr-[10%] mt-[-10%] mix-blend-screen md:mix-blend-normal">
-             <Image 
-                src="/hero-vehicle.png" 
-                alt="Premium Vehicles" 
-                fill
-                className="object-cover md:object-contain object-right transform scale-110 md:scale-125 drop-shadow-2xl"
-                priority
-             />
+          {/* Popular Searches */}
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-xs">
+            <span className="text-gray-500 font-bold flex items-center gap-1.5"><Star className="w-3.5 h-3.5 text-sunset-orange" /> Popular Searches:</span>
+            {["Manali", "Leh", "Goa", "Mumbai", "Bangalore", "Jaipur", "Rishikesh", "Kerala", "Delhi"].map(city => (
+              <Link key={city} href={`/explore?city=${city}`} className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 transition-colors border border-white/5">
+                {city}
+              </Link>
+            ))}
           </div>
-          {/* subtle gradient fade for blending on mobile */}
-          <div className="absolute inset-0 bg-gradient-to-r from-mountain-black to-transparent md:hidden" />
+
         </div>
       </header>
 
-
-      {/* BENTO BOX GRID: Categories & Trust */}
-      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full z-10 relative">
-        <div className="mb-12">
-          <h2 className="font-heading font-black text-4xl md:text-5xl text-snow-white tracking-tight">
-            Everything you need. <br />
-            <span className="text-gray-500">Right where you need it.</span>
-          </h2>
-        </div>
-
-        {/* Bento Grid Container */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[250px]">
+      {/* 2. STATS BAR */}
+      <section className="border-b border-white/5 bg-[#141a14]/50">
+        <div className="max-w-[1440px] mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x divide-white/5">
           
-          {/* Large Feature Card (Spans 2 cols, 2 rows) */}
-          <Link href="/explore?type=bike" className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-sunset-orange/50 transition-colors p-8 flex flex-col justify-end">
-            <Image 
-              src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" 
-              alt="Motorcycles" 
-              fill
-              className="object-cover opacity-40 group-hover:opacity-50 transition-opacity duration-500 group-hover:scale-105"
-            />
-            <div className="absolute top-6 left-6 bg-sunset-orange text-mountain-black text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-lg">
-              Most Popular
+          <div className="flex items-center gap-4 justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-sunset-orange/10 flex items-center justify-center border border-sunset-orange/20 shrink-0">
+              <Compass className="w-6 h-6 text-sunset-orange" />
             </div>
-            <div className="relative z-10">
-              <h3 className="text-3xl font-black mb-2">Motorcycles</h3>
-              <p className="text-gray-300 font-medium max-w-sm">Conquer the mountain passes with our premium fleet of adventure bikes.</p>
+            <div>
+              <p className="text-2xl font-black text-white">50,000+</p>
+              <p className="text-xs font-semibold text-gray-500">Vehicles Available</p>
             </div>
-          </Link>
+          </div>
 
-          {/* Standard Bento Card */}
-          <Link href="/explore?type=scooter" className="group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-white/20 transition-all p-6 flex flex-col">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-forest-green/20 rounded-full blur-2xl group-hover:bg-forest-green/40 transition-colors" />
-            <div className="bg-forest-green/20 w-12 h-12 rounded-full flex items-center justify-center text-forest-green-light mb-auto relative z-10">
-              <Compass className="w-6 h-6" />
+          <div className="flex items-center gap-4 justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-forest-green/10 flex items-center justify-center border border-forest-green/20 shrink-0">
+              <MapPin className="w-6 h-6 text-forest-green-light" />
             </div>
-            <div className="relative z-10 mt-6">
-              <h3 className="text-xl font-bold mb-1">Scooters</h3>
-              <p className="text-sm text-gray-400">Perfect for local cafe hopping and city rides.</p>
+            <div>
+              <p className="text-2xl font-black text-white">200+</p>
+              <p className="text-xs font-semibold text-gray-500">Cities Across India</p>
             </div>
-          </Link>
+          </div>
 
-          {/* Standard Bento Card */}
-          <Link href="/explore?type=car" className="group relative rounded-3xl overflow-hidden border border-white/10 bg-mountain-black-light hover:border-white/20 transition-all p-6 flex flex-col">
-            <div className="absolute top-4 right-4 bg-[#2d5a27] text-snow-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-full z-10">
-              Groups
+          <div className="flex items-center gap-4 justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shrink-0">
+              <Star className="w-6 h-6 text-amber-500" />
             </div>
-            <div className="bg-white/5 w-12 h-12 rounded-full flex items-center justify-center text-white mb-auto relative z-10">
-              <MapPin className="w-6 h-6" />
+            <div>
+              <p className="text-2xl font-black text-white flex items-center gap-1">4.9<Star className="w-4 h-4 fill-amber-500 text-amber-500" /></p>
+              <p className="text-xs font-semibold text-gray-500">Average Rating (20k+)</p>
             </div>
-            <div className="relative z-10 mt-6">
-              <h3 className="text-xl font-bold mb-1">SUVs & Cars</h3>
-              <p className="text-sm text-gray-400">Comfort and space for families and groups.</p>
-            </div>
-          </Link>
+          </div>
 
-          {/* Trust Feature Card (Spans 2 cols) */}
-          <div className="md:col-span-2 relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-mountain-black-light to-mountain-black p-8 flex items-center justify-between group">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
-            <div className="relative z-10 max-w-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="text-emerald-400 w-5 h-5" />
-                <span className="text-emerald-400 font-bold text-sm tracking-wide">100% SECURE</span>
-              </div>
-              <h3 className="text-2xl font-black mb-2">Verified Hosts & Instant KYC</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Skip the paperwork. Upload your documents securely and get approved in minutes. All our hosts are locally vetted for safety and quality.</p>
+          <div className="flex items-center gap-4 justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+              <Headphones className="w-6 h-6 text-emerald-400" />
             </div>
-            <div className="hidden md:flex relative z-10 bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-md transform rotate-3 group-hover:rotate-0 transition-transform">
-               <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Status</p>
-                    <p className="font-bold text-snow-white">Verified Profile</p>
-                  </div>
-               </div>
+            <div>
+              <p className="text-2xl font-black text-white">24×7</p>
+              <p className="text-xs font-semibold text-gray-500">Customer Support</p>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Featured Rentals */}
-      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full border-t border-white/5">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+
+      {/* 3. CHOOSE YOUR ADVENTURE (Categories) */}
+      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
+        <div className="flex items-end justify-between mb-10">
           <div>
-            <h2 className="font-heading font-black text-3xl md:text-4xl text-snow-white tracking-tight mb-2">
-              Featured Rides
-            </h2>
-            <p className="text-gray-500 font-medium">Handpicked, highly-rated vehicles available near you.</p>
+            <h2 className="font-heading font-black text-3xl text-white tracking-tight mb-2">Choose Your Adventure</h2>
+            <p className="text-gray-500 text-sm font-medium">From city commutes to mountain escapes, find the perfect ride.</p>
           </div>
-          <Link
-            href="/explore"
-            className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-snow-white px-6 py-3 rounded-full font-bold text-sm transition-all"
-          >
-            View Full Fleet
-            <ArrowRight className="w-4 h-4" />
+          <Link href="/explore" className="hidden sm:flex items-center gap-1 text-sm font-bold text-sunset-orange hover:text-sunset-orange-dark transition-colors">
+            View All Categories <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Horizontal scroll container */}
+        <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x">
+          {[
+            { name: "Scooters", icon: "🛵", image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80" },
+            { name: "Motorcycles", icon: "🏍️", image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80" },
+            { name: "SUVs & Cars", icon: "🚙", image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80" },
+            { name: "EV Rentals", icon: "⚡", image: "https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&w=400&q=80" },
+            { name: "Luxury Cars", icon: "✨", image: "https://images.unsplash.com/photo-1503376712394-6d9b0d4a9dc3?auto=format&fit=crop&w=400&q=80" },
+            { name: "Road Trips", icon: "🛣️", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80" },
+            { name: "Weekend Getaways", icon: "🏕️", image: "https://images.unsplash.com/photo-1504280387927-31a89c316a30?auto=format&fit=crop&w=400&q=80" },
+            { name: "Group Travel", icon: "🚌", image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80" },
+          ].map((cat) => (
+            <Link key={cat.name} href="/explore" className="relative shrink-0 w-36 h-36 rounded-3xl overflow-hidden group snap-start border border-white/5">
+              <Image src={cat.image} alt={cat.name} fill className="object-cover opacity-50 group-hover:opacity-70 transition-opacity group-hover:scale-110 duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              <div className="absolute inset-0 p-4 flex flex-col justify-end items-center text-center">
+                <span className="text-2xl mb-1">{cat.icon}</span>
+                <span className="text-xs font-bold text-white">{cat.name}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. FEATURED RIDES */}
+      <section className="pb-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <h2 className="font-heading font-black text-3xl text-white tracking-tight mb-2">Featured Rides</h2>
+            <p className="text-gray-500 text-sm font-medium">Handpicked, highly-rated vehicles available near you.</p>
+          </div>
+          <Link href="/explore" className="hidden sm:flex items-center gap-1 text-sm font-bold text-sunset-orange hover:text-sunset-orange-dark transition-colors">
+            View Full Fleet <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {vehicles.map((vehicle: any) => (
             <VehicleCard key={vehicle._id} vehicle={vehicle} />
           ))}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-16 px-6 sm:px-12 md:px-20 border-t border-white/5">
-        <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-            <h3 className="font-heading font-black text-2xl tracking-tighter mb-1">Viberide.</h3>
-            <p className="text-xs text-gray-500 font-medium max-w-xs">Connecting adventure seekers with reliable local vehicles across India. 🌏</p>
+      {/* 5. WHY RENT WITH VIBERIDE? */}
+      <section className="py-20 bg-[#141a14]/30 border-y border-white/5">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12 md:px-20">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="font-heading font-black text-3xl md:text-4xl text-white mb-4">Why Rent with Viberide?</h2>
+            <p className="text-gray-400 font-medium">We make every journey safe, simple, and memorable with our premium service guarantees.</p>
           </div>
-          <div className="flex gap-4">
-            <div className="text-right">
-               <p className="text-snow-white font-bold text-sm mb-1">Legal</p>
-               <div className="flex gap-4 text-xs text-gray-500">
-                 <Link href="#" className="hover:text-snow-white">Privacy</Link>
-                 <Link href="#" className="hover:text-snow-white">Terms</Link>
-               </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-black/40 border border-white/5 p-8 rounded-3xl hover:border-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-6">
+                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Verified & Trusted Hosts</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Every host is verified with KYC and trusted by thousands of travelers. Your safety is our absolute priority.</p>
+            </div>
+
+            <div className="bg-black/40 border border-white/5 p-8 rounded-3xl hover:border-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-2xl bg-sunset-orange/10 flex items-center justify-center mb-6">
+                <Zap className="w-6 h-6 text-sunset-orange" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Doorstep Delivery</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Get your vehicle delivered to your location, on time every time. Hotels, airports, or railway stations.</p>
+            </div>
+
+            <div className="bg-black/40 border border-white/5 p-8 rounded-3xl hover:border-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-2xl bg-forest-green-light/10 flex items-center justify-center mb-6">
+                <Shield className="w-6 h-6 text-forest-green-light" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Secure & Insured</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">All rides come with comprehensive insurance coverage and 24×7 roadside assistance anywhere in India.</p>
+            </div>
+
+            <div className="bg-black/40 border border-white/5 p-8 rounded-3xl hover:border-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6">
+                <Calendar className="w-6 h-6 text-amber-500" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Flexible & Hassle-free</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Free cancellation, easy modifications, and absolutely no hidden charges. Book with complete confidence.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 6. EARN WITH YOUR VEHICLE (HOST CTA) */}
+      <section className="py-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
+        <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-[#1b241b] to-[#0b0f0b] border border-white/10 flex flex-col md:flex-row items-center justify-between p-10 md:p-16 gap-10">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&w=1200&q=80')] opacity-10 mix-blend-overlay bg-cover bg-center"></div>
+          
+          <div className="relative z-10 max-w-xl">
+            <h2 className="font-heading font-black text-4xl sm:text-5xl text-white tracking-tight mb-4">Earn with Your Vehicle</h2>
+            <p className="text-gray-400 text-lg mb-8 leading-relaxed">Join thousands of hosts earning extra income by sharing their cars and bikes on Viberide when not in use.</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/owner" className="bg-sunset-orange hover:bg-sunset-orange-dark text-white px-8 py-4 rounded-full font-bold text-sm transition-all shadow-[0_0_20px_rgba(255,122,69,0.3)]">
+                Become a Host
+              </Link>
+              <Link href="#" className="bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-full font-bold text-sm transition-all border border-white/10">
+                Learn More
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 gap-6 w-full max-w-sm">
+             <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-sm">
+               <div className="w-12 h-12 rounded-xl bg-sunset-orange/20 flex items-center justify-center text-sunset-orange shrink-0"><Compass className="w-6 h-6" /></div>
+               <div>
+                 <p className="font-bold text-white text-sm">High Earnings</p>
+                 <p className="text-xs text-gray-500">Earn up to ₹50,000/month</p>
+               </div>
+             </div>
+             <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-sm">
+               <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0"><ShieldCheck className="w-6 h-6" /></div>
+               <div>
+                 <p className="font-bold text-white text-sm">100% Secure</p>
+                 <p className="text-xs text-gray-500">Verified users, secure payments</p>
+               </div>
+             </div>
+             <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-sm">
+               <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0"><Headphones className="w-6 h-6" /></div>
+               <div>
+                 <p className="font-bold text-white text-sm">Host Support</p>
+                 <p className="text-xs text-gray-500">Dedicated team for owners</p>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. POPULAR CITIES */}
+      <section className="pb-20 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <h2 className="font-heading font-black text-3xl text-white tracking-tight mb-2">Popular Cities</h2>
+            <p className="text-gray-500 text-sm font-medium">Explore vehicles across India's most loved destinations.</p>
+          </div>
+          <Link href="/explore" className="hidden sm:flex items-center gap-1 text-sm font-bold text-sunset-orange hover:text-sunset-orange-dark transition-colors">
+            View All Cities <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { name: "Delhi", count: "15,000+ Vehicles", image: "https://images.unsplash.com/photo-1587474260580-5a3d76b1f24d?auto=format&fit=crop&w=400&q=80" },
+            { name: "Mumbai", count: "12,000+ Vehicles", image: "https://images.unsplash.com/photo-1522204629497-6c2e39922e96?auto=format&fit=crop&w=400&q=80" },
+            { name: "Bangalore", count: "10,000+ Vehicles", image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=400&q=80" },
+            { name: "Goa", count: "8,500+ Vehicles", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80" },
+            { name: "Jaipur", count: "7,500+ Vehicles", image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=400&q=80" },
+            { name: "Manali", count: "6,300+ Vehicles", image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=400&q=80" },
+          ].map((city) => (
+            <Link key={city.name} href={`/explore?city=${city.name}`} className="relative rounded-2xl overflow-hidden h-40 group cursor-pointer border border-white/5">
+              <Image src={city.image} alt={city.name} fill className="object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f0b] via-[#0b0f0b]/30 to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <h3 className="font-bold text-white text-lg">{city.name}</h3>
+                <p className="text-[10px] text-gray-400 font-semibold">{city.count}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 8. APP PROMO BANNER */}
+      <section className="pb-24 px-6 sm:px-12 md:px-20 max-w-[1440px] mx-auto w-full">
+         <div className="bg-[#141a14] border border-white/5 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="flex items-center gap-6">
+               <div className="w-16 h-16 rounded-full bg-forest-green-dark flex items-center justify-center border border-forest-green shrink-0">
+                 <MapPin className="w-8 h-8 text-forest-green-light" />
+               </div>
+               <div>
+                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-white mb-2">The Viberide App</h2>
+                 <p className="text-gray-400 text-sm">Your journey, in your pocket.<br/>Book, manage, and explore on the go.</p>
+               </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+               {/* QR Code Placeholder */}
+               <div className="w-24 h-24 bg-white p-2 rounded-xl hidden lg:block">
+                  <div className="w-full h-full border-4 border-dashed border-gray-300 flex items-center justify-center text-[10px] text-gray-400 text-center font-bold">QR Code</div>
+               </div>
+               
+               <div className="flex flex-col gap-3">
+                 <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl transition-colors min-w-[200px]">
+                    <Play className="w-6 h-6" />
+                    <div className="text-left">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider leading-none">GET IT ON</p>
+                      <p className="font-bold text-sm leading-tight">Google Play</p>
+                    </div>
+                 </button>
+                 <button className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl transition-colors min-w-[200px]">
+                    <Apple className="w-6 h-6 fill-white" />
+                    <div className="text-left">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider leading-none">Download on the</p>
+                      <p className="font-bold text-sm leading-tight">App Store</p>
+                    </div>
+                 </button>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* 9. MEGA FOOTER */}
+      <footer className="bg-[#141a14]/80 border-t border-white/5 pt-20 pb-10 px-6 sm:px-12 md:px-20">
+        <div className="max-w-[1440px] mx-auto">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
+            <div className="lg:col-span-2">
+              <h3 className="font-heading font-black text-3xl tracking-tighter mb-4 text-sunset-orange">VIBERIDE</h3>
+              <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-6">Connecting adventure seekers with reliable local vehicles across India. Experience the freedom of the open road.</p>
+              <div className="flex gap-4">
+                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-sunset-orange cursor-pointer transition-colors"><MapPin className="w-4 h-4 text-white" /></div>
+                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-sunset-orange cursor-pointer transition-colors"><MessageSquare className="w-4 h-4 text-white" /></div>
+                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-sunset-orange cursor-pointer transition-colors"><Headphones className="w-4 h-4 text-white" /></div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Company</h4>
+              <ul className="flex flex-col gap-4 text-sm text-gray-400">
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">About Us</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Careers</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Press</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Blog</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Contact Us</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Services</h4>
+              <ul className="flex flex-col gap-4 text-sm text-gray-400">
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Explore Vehicles</Link></li>
+                <li><Link href="/owner" className="hover:text-sunset-orange transition-colors">Become a Host</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Business Rentals</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Airport Delivery</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Outstation Rentals</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Support</h4>
+              <ul className="flex flex-col gap-4 text-sm text-gray-400">
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Help Center</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Safety</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Cancellation Policy</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Terms & Conditions</Link></li>
+                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Newsletter & Copyright */}
+          <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 gap-6">
+            <p className="text-xs text-gray-600">© {new Date().getFullYear()} Viberide Rental Technologies. All rights reserved.</p>
+            
+            <div className="flex items-center gap-2">
+              <input type="email" placeholder="Enter your email" className="bg-[#0b0f0b] border border-white/10 rounded-full px-6 py-2.5 text-sm text-white focus:outline-none focus:border-sunset-orange min-w-[250px]" />
+              <button className="bg-sunset-orange text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-sunset-orange-dark transition-colors">Subscribe</button>
+            </div>
+            
+            <p className="text-xs text-gray-600 flex items-center gap-1">Made with <span className="text-red-500">❤️</span> in India</p>
+          </div>
+
         </div>
       </footer>
 
