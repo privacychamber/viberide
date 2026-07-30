@@ -438,33 +438,33 @@ export default async function Home() {
             <div>
               <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Company</h4>
               <ul className="flex flex-col gap-4 text-sm text-gray-400">
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">About Us</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Careers</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Press</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Contact Us</Link></li>
+                <li><Link href="/about" className="hover:text-sunset-orange transition-colors">About Us</Link></li>
+                <li><Link href="/careers" className="hover:text-sunset-orange transition-colors">Careers</Link></li>
+                <li><Link href="/press" className="hover:text-sunset-orange transition-colors">Press</Link></li>
+                <li><Link href="/blog" className="hover:text-sunset-orange transition-colors">Blog</Link></li>
+                <li><Link href="/contact" className="hover:text-sunset-orange transition-colors">Contact Us</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Services</h4>
               <ul className="flex flex-col gap-4 text-sm text-gray-400">
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Explore Vehicles</Link></li>
+                <li><Link href="/explore" className="hover:text-sunset-orange transition-colors">Explore Vehicles</Link></li>
                 <li><Link href="/owner" className="hover:text-sunset-orange transition-colors">Become a Host</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Business Rentals</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Airport Delivery</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Outstation Rentals</Link></li>
+                <li><Link href="/business-rentals" className="hover:text-sunset-orange transition-colors">Business Rentals</Link></li>
+                <li><Link href="/airport-delivery" className="hover:text-sunset-orange transition-colors">Airport Delivery</Link></li>
+                <li><Link href="/outstation-rentals" className="hover:text-sunset-orange transition-colors">Outstation Rentals</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">Support</h4>
               <ul className="flex flex-col gap-4 text-sm text-gray-400">
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Safety</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Cancellation Policy</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Terms & Conditions</Link></li>
-                <li><Link href="#" className="hover:text-sunset-orange transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/help" className="hover:text-sunset-orange transition-colors">Help Center</Link></li>
+                <li><Link href="/safety" className="hover:text-sunset-orange transition-colors">Safety</Link></li>
+                <li><Link href="/cancellation-policy" className="hover:text-sunset-orange transition-colors">Cancellation Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-sunset-orange transition-colors">Terms & Conditions</Link></li>
+                <li><Link href="/privacy" className="hover:text-sunset-orange transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
