@@ -52,7 +52,7 @@ export default function SignupPage() {
     }
 
     if (!formData.email.trim()) {
-      setError("Please enter a valid email address for verification.");
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -73,7 +73,7 @@ export default function SignupPage() {
     }
 
     if (!formData.agreeTerms) {
-      setError("Please agree to the Terms & Conditions to continue.");
+      setError("Please agree to the Terms & Conditions.");
       return;
     }
 
@@ -100,7 +100,7 @@ export default function SignupPage() {
         throw new Error(data.message || "Failed to create account. Please try again.");
       }
 
-      // Store temporary auth handoff so user enters dashboard automatically after email OTP
+      // Store temporary auth handoff for instant zero-blocker dashboard login
       try {
         sessionStorage.setItem(
           "viberide_auth_handoff",
@@ -112,10 +112,10 @@ export default function SignupPage() {
           })
         );
       } catch (e) {
-        console.warn("Storage not available:", e);
+        console.warn("Session storage not available:", e);
       }
 
-      // Success: Redirect to email verification page with email in query
+      // Redirect to OTP verification
       router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim().toLowerCase())}`);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -125,269 +125,285 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-center font-sans antialiased py-10 px-4 sm:px-6">
-      <main className="w-full max-w-[480px] mx-auto">
+    <div className="min-h-screen bg-mountain-black text-snow-white flex flex-col justify-center items-center py-8 px-4 relative overflow-hidden font-sans antialiased selection:bg-sunset-orange selection:text-snow-white">
+      {/* Subtle Background Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[380px] bg-emerald-950/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <main className="w-full max-w-[420px] mx-auto relative z-10">
         
         {/* Back Link */}
-        <div className="mb-6">
+        <div className="mb-3.5">
           <Link 
             href="/" 
-            className="inline-flex items-center text-slate-500 hover:text-slate-800 transition-colors text-sm font-medium"
+            className="inline-flex items-center text-gray-400 hover:text-snow-white transition-colors text-xs font-medium"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
             Back to Home
           </Link>
         </div>
 
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-2">
-            Create Account
-          </h1>
-          <p className="text-slate-500 text-sm">
-            Rent vehicles or list your own ride
-          </p>
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Main Glass Card */}
+        <div className="bg-[#131913]/90 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-2xl backdrop-blur-md">
           
-          {/* Role Selection Cards */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-2.5">
-              I am a...
-            </label>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              
-              {/* Renter Card */}
-              <button
-                type="button"
-                onClick={() => setRole("renter")}
-                className={`p-3.5 sm:p-4 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
-                  role === "renter"
-                    ? "bg-emerald-50/60 border-2 border-green-600 shadow-xs"
-                    : "bg-white border border-slate-200 hover:border-slate-300"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-lg ${role === "renter" ? "bg-emerald-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
-                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
-                    I&apos;m Looking to Rent
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-                    Find &amp; book vehicles
-                  </p>
-                </div>
-              </button>
-
-              {/* Owner Card */}
-              <button
-                type="button"
-                onClick={() => setRole("owner")}
-                className={`p-3.5 sm:p-4 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
-                  role === "owner"
-                    ? "bg-emerald-50/60 border-2 border-green-600 shadow-xs"
-                    : "bg-white border border-slate-200 hover:border-slate-300"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-lg ${role === "owner" ? "bg-emerald-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
-                    <Car className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
-                    I Want to List My Vehicle
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-                    Host &amp; manage fleet
-                  </p>
-                </div>
-              </button>
-
-            </div>
-          </div>
-
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
-              Full Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <User className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Rahul Sharma"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
-              />
-            </div>
-          </div>
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
-              Email Address
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-5 h-5" />
-              </div>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="rahul@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
-              />
-            </div>
-            <p className="text-xs text-green-600 font-medium mt-1.5">
-              Required for email verification &amp; password recovery
+          {/* Header */}
+          <div className="mb-5 text-center">
+            <Link href="/" className="inline-block mb-2">
+              <span className="font-heading font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-sunset-orange to-amber-500">
+                VIBERIDE
+              </span>
+            </Link>
+            <h1 className="font-heading font-bold text-2xl text-snow-white tracking-tight">
+              Create Account
+            </h1>
+            <p className="text-gray-400 text-xs mt-1">
+              Rent vehicles or list your own ride
             </p>
           </div>
 
-          {/* Phone Number */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
-              Phone Number
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Phone className="w-5 h-5" />
-              </div>
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder="+91 98765 43210"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
-              />
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
-            <p className="text-xs text-slate-400 mt-1.5">
-              This will be your login ID
-            </p>
-          </div>
+          )}
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Lock className="w-5 h-5" />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            
+            {/* Role Selection Cards */}
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1.5">
+                I am a...
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                
+                {/* Renter */}
+                <button
+                  type="button"
+                  onClick={() => setRole("renter")}
+                  className={`p-2.5 sm:p-3 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                    role === "renter"
+                      ? "bg-emerald-500/15 border-emerald-500 text-snow-white shadow-xs"
+                      : "bg-white/[0.02] border-white/10 text-gray-400 hover:border-white/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className={`p-1.5 rounded-lg ${role === "renter" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-gray-400"}`}>
+                      <Search className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xs text-snow-white leading-tight">
+                      Looking to Rent
+                    </h3>
+                    <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">
+                      Find &amp; book rides
+                    </p>
+                  </div>
+                </button>
+
+                {/* Owner */}
+                <button
+                  type="button"
+                  onClick={() => setRole("owner")}
+                  className={`p-2.5 sm:p-3 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                    role === "owner"
+                      ? "bg-emerald-500/15 border-emerald-500 text-snow-white shadow-xs"
+                      : "bg-white/[0.02] border-white/10 text-gray-400 hover:border-white/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className={`p-1.5 rounded-lg ${role === "owner" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-gray-400"}`}>
+                      <Car className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xs text-snow-white leading-tight">
+                      List My Vehicle
+                    </h3>
+                    <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">
+                      Host &amp; earn income
+                    </p>
+                  </div>
+                </button>
+
               </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                required
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
             </div>
-          </div>
 
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Lock className="w-5 h-5" />
+            {/* Full Name */}
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                  <User className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Rahul Sharma"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full bg-[#1b241b]/90 border border-white/10 rounded-xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-snow-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                />
               </div>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                required
-                placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                tabIndex={-1}
-              >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
             </div>
+
+            {/* Email Address */}
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="rahul@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-[#1b241b]/90 border border-white/10 rounded-xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-snow-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                />
+              </div>
+              <p className="text-[11px] text-emerald-400 mt-1">
+                Required for email verification &amp; recovery
+              </p>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1">
+                Phone Number
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  placeholder="+91 98765 43210"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full bg-[#1b241b]/90 border border-white/10 rounded-xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-snow-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                />
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                This will be your primary login ID
+              </p>
+            </div>
+
+            {/* Password & Confirm Password in 2 Cols */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-medium text-gray-300 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    placeholder="Min 6 chars"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full bg-[#1b241b]/90 border border-white/10 rounded-xl pl-8 pr-8 py-2 text-xs sm:text-sm text-snow-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-300 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs font-medium text-gray-300 mb-1">
+                  Confirm
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    required
+                    placeholder="Repeat password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full bg-[#1b241b]/90 border border-white/10 rounded-xl pl-8 pr-8 py-2 text-xs sm:text-sm text-snow-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-300 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="flex items-center gap-2 pt-0.5">
+              <input
+                type="checkbox"
+                id="agreeTerms"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+                className="w-3.5 h-3.5 text-emerald-600 bg-[#1b241b] border-white/20 rounded focus:ring-emerald-500 cursor-pointer"
+              />
+              <label htmlFor="agreeTerms" className="text-xs text-gray-400 cursor-pointer select-none">
+                I agree to{" "}
+                <Link href="/terms" target="_blank" className="text-emerald-400 hover:underline font-medium">
+                  Terms &amp; Conditions
+                </Link>
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 sm:py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-md shadow-emerald-950/40 flex items-center justify-center text-xs sm:text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Create Account"
+              )}
+            </button>
+          </form>
+
+          {/* Login Link */}
+          <div className="text-center text-xs text-gray-400 mt-4 pt-3 border-t border-white/10">
+            Already have an account?{" "}
+            <Link 
+              href="/login" 
+              className="font-semibold text-emerald-400 hover:text-emerald-300 hover:underline transition-colors inline-flex items-center gap-0.5"
+            >
+              Login here &rarr;
+            </Link>
           </div>
 
-          {/* Terms & Conditions */}
-          <div className="flex items-center gap-2.5 pt-1">
-            <input
-              type="checkbox"
-              id="agreeTerms"
-              name="agreeTerms"
-              checked={formData.agreeTerms}
-              onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-600 cursor-pointer"
-            />
-            <label htmlFor="agreeTerms" className="text-xs sm:text-sm text-slate-600 cursor-pointer select-none">
-              I agree to{" "}
-              <Link href="/terms" target="_blank" className="text-green-600 hover:underline font-medium">
-                Terms &amp; Conditions
-              </Link>
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 px-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center text-base cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-4"
-          >
-            {loading ? (
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Create Account"
-            )}
-          </button>
-        </form>
-
-        {/* Login Link */}
-        <div className="text-center text-sm text-slate-600 mt-8">
-          Already have an account?{" "}
-          <Link 
-            href="/login" 
-            className="font-semibold text-green-600 hover:text-green-700 hover:underline transition-colors inline-flex items-center gap-1"
-          >
-            Login here &rarr;
-          </Link>
         </div>
 
       </main>
