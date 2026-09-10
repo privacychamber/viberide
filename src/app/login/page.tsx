@@ -4,15 +4,14 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import BottomNav from "@/components/BottomNav";
-import { ArrowLeft, Phone, Lock, Eye, EyeOff, Compass } from "lucide-react";
+import { ArrowLeft, Phone, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/profile";
   const registered = searchParams.get("registered");
+  const verified = searchParams.get("verified");
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -22,15 +21,15 @@ function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone || phone.length < 10) {
-      setError("Please enter a valid 10-digit phone number.");
+    if (!phone) {
+      setError("Please enter your phone number or email address.");
       return;
     }
     if (!password) {
       setError("Please enter your password.");
       return;
     }
-    
+
     setError("");
     setLoading(true);
 
@@ -44,7 +43,12 @@ function LoginForm() {
       setLoading(false);
 
       if (res?.error) {
-        setError(res.error || "Authentication failed. Check details.");
+        if (res.error.startsWith("UNVERIFIED_EMAIL:")) {
+          const unverifiedEmail = res.error.split(":")[1];
+          router.push(`/verify-email?email=${encodeURIComponent(unverifiedEmail)}&reason=unverified`);
+          return;
+        }
+        setError(res.error || "Invalid credentials. Please check your phone/email and password.");
       } else {
         router.push(callbackUrl);
         router.refresh();
@@ -56,81 +60,117 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto relative z-10 flex flex-col items-center">
+    <div className="w-full max-w-[440px] mx-auto py-8 px-4 sm:px-0">
       
       {/* Back Link */}
-      <div className="w-full mb-6 text-left">
-        <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white transition-colors text-sm font-medium">
+      <div className="mb-8">
+        <Link 
+          href="/" 
+          className="inline-flex items-center text-slate-500 hover:text-slate-800 transition-colors text-sm font-medium"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Link>
       </div>
 
       {/* Header */}
-      <div className="w-full mb-8 text-center">
-        <h1 className="font-heading font-black text-3xl md:text-4xl text-snow-white mb-2 tracking-tight">Welcome Back</h1>
-        <p className="text-gray-400 text-sm">Login to continue to Viberide</p>
+      <div className="mb-8">
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-2">
+          Welcome Back
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Login to manage your bookings and vehicles
+        </p>
       </div>
 
-      {registered && (
-        <div className="w-full mb-6 p-4 bg-forest-green/10 border border-forest-green/20 text-forest-green-light rounded-xl text-sm font-medium">
-          Account created successfully! Please login.
+      {/* Alerts */}
+      {verified && (
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm flex items-start gap-3">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <span>Your email has been verified successfully! You can now log in.</span>
+        </div>
+      )}
+
+      {registered && !verified && (
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm flex items-start gap-3">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <span>Account created successfully! Please login with your credentials.</span>
         </div>
       )}
 
       {error && (
-        <div className="w-full mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm font-medium">
-          {error}
+        <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+          <span>{error}</span>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleLogin} className="w-full space-y-6">
+      <form onSubmit={handleLogin} className="space-y-5">
         
-        {/* Phone Number */}
+        {/* Phone Number / Email */}
         <div>
-          <label className="block text-xs font-bold text-gray-400 mb-2">Phone Number</label>
+          <label className="block text-sm font-semibold text-slate-800 mb-2">
+            Phone Number
+          </label>
           <div className="relative">
-            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Phone className="w-5 h-5" />
+            </div>
             <input
-              type="tel"
+              type="text"
               required
               placeholder="+91 98765 43210"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
             />
           </div>
         </div>
 
         {/* Password */}
         <div>
-          <label className="block text-xs font-bold text-gray-400 mb-2">Password</label>
+          <label className="block text-sm font-semibold text-slate-800 mb-2">
+            Password
+          </label>
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Lock className="w-5 h-5" />
+            </div>
             <input
               type={showPassword ? "text" : "password"}
               required
-              placeholder="Enter your password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+              tabIndex={-1}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
+        {/* Forgot Password */}
+        <div className="flex justify-end pt-1">
+          <Link
+            href="/contact?subject=Password%20Reset%20Request"
+            className="text-sm font-medium text-green-600 hover:text-green-700 hover:underline transition-colors"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
         {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 mt-4 bg-[#10b981] hover:bg-[#059669] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer flex items-center justify-center text-[15px]"
+          className="w-full py-3.5 px-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center text-base cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-2"
         >
           {loading ? (
             <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -140,11 +180,19 @@ function LoginForm() {
         </button>
       </form>
 
+      {/* Divider */}
+      <div className="my-7 flex items-center justify-center">
+        <span className="text-slate-400 text-sm font-normal">— or —</span>
+      </div>
+
       {/* Signup Link */}
-      <div className="mt-8 text-sm text-gray-400">
-        Don't have an account?{" "}
-        <Link href="/signup" className="text-[#10b981] font-bold hover:underline">
-          Create Account &rarr;
+      <div className="text-center text-sm text-slate-600">
+        Don&apos;t have an account?{" "}
+        <Link 
+          href="/signup" 
+          className="font-semibold text-green-600 hover:text-green-700 hover:underline transition-colors inline-flex items-center gap-1"
+        >
+          Register here &rarr;
         </Link>
       </div>
 
@@ -154,14 +202,12 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0 font-sans">
-      <Navbar />
-      <main className="flex-grow flex items-center justify-center px-4 py-8 max-w-2xl mx-auto w-full">
-        <Suspense fallback={<div className="text-gray-400">Loading...</div>}>
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-center font-sans antialiased">
+      <main className="flex-grow flex items-center justify-center p-4 sm:p-6">
+        <Suspense fallback={<div className="text-slate-400 text-sm">Loading...</div>}>
           <LoginForm />
         </Suspense>
       </main>
-      <BottomNav />
     </div>
   );
 }

@@ -3,16 +3,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import BottomNav from "@/components/BottomNav";
-import { ArrowLeft, Search, Home as HomeIcon, User, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Search, 
+  Car, 
+  User, 
+  Mail, 
+  Phone, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  AlertCircle 
+} from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
   const [role, setRole] = useState<"renter" | "owner">("renter");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,13 +46,34 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
+    if (!formData.name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError("Please enter a valid email address for verification.");
+      return;
+    }
+
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+    if (cleanPhone.length < 10) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match.");
       return;
     }
 
     if (!formData.agreeTerms) {
-      setError("You must agree to the Terms & Conditions");
+      setError("Please agree to the Terms & Conditions to continue.");
       return;
     }
 
@@ -56,105 +86,149 @@ export default function SignupPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone.replace(/\D/g, ""),
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: cleanPhone,
           password: formData.password,
-          role: role,
+          role,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Something went wrong");
+        throw new Error(data.message || "Failed to create account. Please try again.");
       }
 
-      // Success, redirect to login
-      router.push("/login?registered=true");
+      // Store temporary auth handoff so user enters dashboard automatically after email OTP
+      try {
+        sessionStorage.setItem(
+          "viberide_auth_handoff",
+          JSON.stringify({
+            phone: cleanPhone,
+            email: formData.email.trim().toLowerCase(),
+            password: formData.password,
+            role,
+          })
+        );
+      } catch (e) {
+        console.warn("Storage not available:", e);
+      }
+
+      // Success: Redirect to email verification page with email in query
+      router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim().toLowerCase())}`);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-mountain-black text-snow-white pb-24 md:pb-0 font-sans">
-      <Navbar />
-      <main className="flex-grow flex flex-col items-center px-4 py-8 max-w-2xl mx-auto w-full">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-center font-sans antialiased py-10 px-4 sm:px-6">
+      <main className="w-full max-w-[480px] mx-auto">
         
         {/* Back Link */}
-        <div className="w-full mb-6">
-          <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white transition-colors text-sm font-medium">
+        <div className="mb-6">
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-slate-500 hover:text-slate-800 transition-colors text-sm font-medium"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
         </div>
 
         {/* Header */}
-        <div className="w-full mb-8">
-          <h1 className="font-heading font-black text-3xl md:text-4xl text-snow-white mb-2 tracking-tight">Create Account</h1>
-          <p className="text-gray-400 text-sm">List your vehicle or find your perfect ride</p>
+        <div className="mb-6">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-2">
+            Create Account
+          </h1>
+          <p className="text-slate-500 text-sm">
+            Rent vehicles or list your own ride
+          </p>
         </div>
 
-        {/* Error Message */}
+        {/* Error Alert */}
         {error && (
-          <div className="w-full mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm font-medium">
-            {error}
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+            <span>{error}</span>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="w-full space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           
-          {/* Role Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-300">I am a...</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Role Selection Cards */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-800 mb-2.5">
+              I am a...
+            </label>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              
+              {/* Renter Card */}
               <button
                 type="button"
                 onClick={() => setRole("renter")}
-                className={`flex items-start p-4 rounded-2xl border transition-all ${
-                  role === "renter" 
-                    ? "bg-forest-green/10 border-forest-green text-white" 
-                    : "bg-mountain-black-light border-white/10 text-gray-400 hover:border-white/30"
+                className={`p-3.5 sm:p-4 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                  role === "renter"
+                    ? "bg-emerald-50/60 border-2 border-green-600 shadow-xs"
+                    : "bg-white border border-slate-200 hover:border-slate-300"
                 }`}
               >
-                <div className={`p-2 rounded-xl mr-3 ${role === "renter" ? "bg-forest-green/20 text-forest-green-light" : "bg-white/5"}`}>
-                  <Search className="w-5 h-5" />
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-lg ${role === "renter" ? "bg-emerald-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
                 </div>
-                <div className="text-left">
-                  <div className="font-bold text-sm mb-1">I'm Looking for a Vehicle</div>
-                  <div className="text-xs opacity-70">Find & save rides</div>
+                <div>
+                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
+                    I&apos;m Looking to Rent
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                    Find &amp; book vehicles
+                  </p>
                 </div>
               </button>
 
+              {/* Owner Card */}
               <button
                 type="button"
                 onClick={() => setRole("owner")}
-                className={`flex items-start p-4 rounded-2xl border transition-all ${
-                  role === "owner" 
-                    ? "bg-forest-green/10 border-forest-green text-white" 
-                    : "bg-mountain-black-light border-white/10 text-gray-400 hover:border-white/30"
+                className={`p-3.5 sm:p-4 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                  role === "owner"
+                    ? "bg-emerald-50/60 border-2 border-green-600 shadow-xs"
+                    : "bg-white border border-slate-200 hover:border-slate-300"
                 }`}
               >
-                <div className={`p-2 rounded-xl mr-3 ${role === "owner" ? "bg-forest-green/20 text-forest-green-light" : "bg-white/5"}`}>
-                  <HomeIcon className="w-5 h-5" />
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-lg ${role === "owner" ? "bg-emerald-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                    <Car className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
                 </div>
-                <div className="text-left">
-                  <div className="font-bold text-sm mb-1">I Want to List My Vehicle</div>
-                  <div className="text-xs opacity-70">Post & manage listings</div>
+                <div>
+                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
+                    I Want to List My Vehicle
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                    Host &amp; manage fleet
+                  </p>
                 </div>
               </button>
+
             </div>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">Full Name</label>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+              Full Name
+            </label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <User className="w-5 h-5" />
+              </div>
               <input
                 type="text"
                 name="name"
@@ -162,68 +236,82 @@ export default function SignupPage() {
                 placeholder="Rahul Sharma"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
               />
             </div>
           </div>
 
           {/* Email Address */}
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">Email Address</label>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+              Email Address
+            </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-5 h-5" />
+              </div>
               <input
                 type="email"
                 name="email"
+                required
                 placeholder="rahul@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
               />
             </div>
-            <p className="text-[11px] text-forest-green-light mt-1.5 font-medium">Required for password recovery</p>
+            <p className="text-xs text-green-600 font-medium mt-1.5">
+              Required for email verification &amp; password recovery
+            </p>
           </div>
 
           {/* Phone Number */}
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">Phone Number</label>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+              Phone Number
+            </label>
             <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Phone className="w-5 h-5" />
+              </div>
               <input
                 type="tel"
                 name="phone"
                 required
                 placeholder="+91 98765 43210"
                 value={formData.phone}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-                  setFormData((prev) => ({ ...prev, phone: val }));
-                }}
-                className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+                onChange={handleChange}
+                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
               />
             </div>
-            <p className="text-[11px] text-gray-500 mt-1.5 font-medium">This will be your login ID</p>
+            <p className="text-xs text-slate-400 mt-1.5">
+              This will be your login ID
+            </p>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">Password</label>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+              Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-5 h-5" />
+              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 required
-                minLength={6}
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -232,41 +320,48 @@ export default function SignupPage() {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">Confirm Password</label>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+              Confirm Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-5 h-5" />
+              </div>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 required
-                minLength={6}
                 placeholder="Confirm password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full bg-mountain-black-light border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-sm text-snow-white focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-forest-green/50 transition-all placeholder:text-gray-600"
+                className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                tabIndex={-1}
               >
                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
 
-          {/* Terms Checkbox */}
-          <div className="flex items-center pt-2">
+          {/* Terms & Conditions */}
+          <div className="flex items-center gap-2.5 pt-1">
             <input
               type="checkbox"
               id="agreeTerms"
               name="agreeTerms"
               checked={formData.agreeTerms}
               onChange={handleChange}
-              className="w-4 h-4 rounded border-white/20 bg-mountain-black-light text-forest-green focus:ring-forest-green focus:ring-offset-0"
+              className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-600 cursor-pointer"
             />
-            <label htmlFor="agreeTerms" className="ml-3 text-xs text-gray-400">
-              I agree to Terms & Conditions
+            <label htmlFor="agreeTerms" className="text-xs sm:text-sm text-slate-600 cursor-pointer select-none">
+              I agree to{" "}
+              <Link href="/terms" target="_blank" className="text-green-600 hover:underline font-medium">
+                Terms &amp; Conditions
+              </Link>
             </label>
           </div>
 
@@ -274,7 +369,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 mt-4 bg-[#10b981] hover:bg-[#059669] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer flex items-center justify-center text-[15px]"
+            className="w-full py-3.5 px-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center text-base cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-4"
           >
             {loading ? (
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -285,15 +380,17 @@ export default function SignupPage() {
         </form>
 
         {/* Login Link */}
-        <div className="mt-8 text-sm text-gray-400">
+        <div className="text-center text-sm text-slate-600 mt-8">
           Already have an account?{" "}
-          <Link href="/login" className="text-[#10b981] font-bold hover:underline">
+          <Link 
+            href="/login" 
+            className="font-semibold text-green-600 hover:text-green-700 hover:underline transition-colors inline-flex items-center gap-1"
+          >
             Login here &rarr;
           </Link>
         </div>
-        
+
       </main>
-      <BottomNav />
     </div>
   );
 }
