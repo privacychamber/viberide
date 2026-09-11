@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
@@ -15,6 +16,12 @@ export async function PATCH(
 
     const resolvedParams = await params;
     const vehicleId = resolvedParams.id;
+
+    // Validate ObjectId (P0-10)
+    if (!vehicleId || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+      return NextResponse.json({ error: "Invalid vehicle ID format." }, { status: 400 });
+    }
+
     const { status, featured, flagged } = await req.json();
 
     await dbConnect();
@@ -46,7 +53,8 @@ export async function PATCH(
       message: "Vehicle settings updated successfully!",
       vehicle,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update vehicle status" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update vehicle status";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

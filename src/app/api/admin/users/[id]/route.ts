@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
@@ -18,8 +19,9 @@ export async function PATCH(
     const body = await req.json();
     const { action, flagged } = body;
 
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required." }, { status: 400 });
+    // Validate ObjectId (P0-10)
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return NextResponse.json({ error: "Invalid user ID format." }, { status: 400 });
     }
 
     await dbConnect();
@@ -74,7 +76,8 @@ export async function PATCH(
         flagged: user.flagged,
       },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update user verification" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update user verification";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -171,7 +171,7 @@ export default function AdminConsole() {
               Access Denied
             </h1>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-              You must have an administrator account to view the Admin Console. Please log in with the admin phone number (<strong className="text-snow-white">9999999999</strong>) to test the admin functionality.
+              You must have an administrator account to view the Admin Console. Please log in with an authorized administrator account to access this page.
             </p>
             <div className="pt-4">
               <Link href="/profile" className="text-xs font-bold text-sunset-orange hover:text-snow-white underline">

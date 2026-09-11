@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
@@ -15,6 +16,12 @@ export async function POST(
 
     const resolvedParams = await params;
     const vehicleId = resolvedParams.id;
+
+    // Validate ObjectId (P0-10)
+    if (!vehicleId || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+      return NextResponse.json({ error: "Invalid vehicle ID format." }, { status: 400 });
+    }
+
     const { blockedDates } = await req.json(); // Array of ISO Date strings
 
     if (!Array.isArray(blockedDates)) {
@@ -42,7 +49,8 @@ export async function POST(
       message: "Blocked dates updated successfully!",
       blockedDates: vehicle.blockedDates,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update blocked dates" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update blocked dates";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "npx tsx scripts/seed.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.2",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
     "lucide-react": "^1.16.0",
     "mongodb": "^7.2.0",
     "mongoose": "^9.6.2",

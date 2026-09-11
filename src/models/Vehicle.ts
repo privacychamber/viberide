@@ -86,6 +86,9 @@ const VehicleSchema: Schema<IVehicle> = new Schema(
   { timestamps: true }
 );
 
+// Compound index for vehicle discovery, filtering, and availability queries
+VehicleSchema.index({ status: 1, availability: 1, "location.city": 1 });
+
 const Vehicle: Model<IVehicle> =
   mongoose.models.Vehicle || mongoose.model<IVehicle>("Vehicle", VehicleSchema);
 

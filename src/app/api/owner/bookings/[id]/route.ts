@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/dbConnect";
 import Booking from "@/models/Booking";
-import Vehicle from "@/models/Vehicle";
+import "@/models/Vehicle";
 
 export async function PATCH(
   req: Request,
@@ -16,9 +17,15 @@ export async function PATCH(
 
     const resolvedParams = await params;
     const bookingId = resolvedParams.id;
+
+    // Validate ObjectId (P0-10)
+    if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) {
+      return NextResponse.json({ error: "Invalid booking ID format." }, { status: 400 });
+    }
+
     const { status } = await req.json();
 
-    if (!bookingId || !status || (status !== "approved" && status !== "rejected" && status !== "completed" && status !== "cancelled")) {
+    if (!status || (status !== "approved" && status !== "rejected" && status !== "completed" && status !== "cancelled")) {
       return NextResponse.json({ error: "Invalid parameters." }, { status: 400 });
     }
 
@@ -30,7 +37,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Booking request not found." }, { status: 404 });
     }
 
-    const vehicle = booking.vehicle as any;
+    const vehicle = booking.vehicle as unknown as { owner: mongoose.Types.ObjectId };
     if (vehicle.owner.toString() !== session.user.id && session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized. You do not own this vehicle." }, { status: 403 });
     }
@@ -47,7 +54,8 @@ export async function PATCH(
         status: booking.status,
       },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update booking status" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update booking status";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

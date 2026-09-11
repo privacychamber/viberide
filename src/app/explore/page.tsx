@@ -288,11 +288,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-3">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>
-                Running in Offline Fallback Mode. Connect MongoDB to query live database listings. Trigger seeding by visiting{" "}
-                <Link href="/api/seed" className="underline font-bold text-snow-white">
-                  /api/seed
-                </Link>
-                .
+                Running in Offline Fallback Mode. Connect MongoDB to query live database listings or populate initial data with `npm run seed`.
               </span>
             </div>
           )}

@@ -133,12 +133,13 @@ export default function OwnerDashboard() {
 
   const [uploading, setUploading] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void, category: "vehicle" | "document" = "vehicle") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("category", category);
     
     setUploading(true);
     try {

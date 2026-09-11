@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/dbConnect";
 import Vehicle from "@/models/Vehicle";
@@ -15,6 +16,12 @@ export async function PUT(
 
     const resolvedParams = await params;
     const vehicleId = resolvedParams.id;
+
+    // Validate ObjectId (P0-10)
+    if (!vehicleId || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+      return NextResponse.json({ error: "Invalid vehicle ID format." }, { status: 400 });
+    }
+
     const updates = await req.json();
 
     await dbConnect();
@@ -52,8 +59,9 @@ export async function PUT(
       message: "Vehicle updated successfully! Awaiting admin review.",
       vehicle,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update vehicle" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update vehicle";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -69,6 +77,11 @@ export async function DELETE(
 
     const resolvedParams = await params;
     const vehicleId = resolvedParams.id;
+
+    // Validate ObjectId (P0-10)
+    if (!vehicleId || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+      return NextResponse.json({ error: "Invalid vehicle ID format." }, { status: 400 });
+    }
 
     await dbConnect();
 
@@ -88,7 +101,8 @@ export async function DELETE(
       success: true,
       message: "Vehicle deleted successfully!",
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to delete vehicle" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to delete vehicle";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

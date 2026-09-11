@@ -66,6 +66,7 @@ export default function ProfilePage() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("category", "kyc");
     
     setUploading(true);
     try {

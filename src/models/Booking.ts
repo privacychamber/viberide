@@ -26,6 +26,9 @@ const BookingSchema: Schema<IBooking> = new Schema(
   { timestamps: true }
 );
 
+// Compound index for booking conflict checks and vehicle availability calendar queries
+BookingSchema.index({ vehicle: 1, fromDate: 1, toDate: 1, status: 1 });
+
 const Booking: Model<IBooking> =
   mongoose.models.Booking || mongoose.model<IBooking>("Booking", BookingSchema);
 
