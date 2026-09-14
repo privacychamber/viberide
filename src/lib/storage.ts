@@ -12,10 +12,11 @@ export interface UploadResult {
 }
 
 export interface PrivateAssetResult {
-  type: "stream" | "buffer"; // buffer for fallback legacy, stream for optimal delivery
+  type: "stream" | "buffer" | "redirect"; // buffer for fallback legacy, stream for optimal delivery
   stream?: NodeJS.ReadableStream;
   buffer?: Buffer;
   mimeType?: string;
+  redirectUrl?: string;
 }
 
 export interface IStorageDriver {

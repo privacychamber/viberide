@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
-import { getStorageDriver, LocalStorageDriver, CloudinaryStorageDriver } from "../src/lib/storage";
+import { getStorageDriver, LocalPersistentStorageDriver } from "../src/lib/storage";
 
 // Load environment variables from .env.local
 const envPath = path.resolve(process.cwd(), ".env.local");
@@ -135,7 +135,7 @@ async function runPhase2Tests() {
   // Test 9: Public Vehicle Image Delivery Strategy
   // -------------------------------------------------------------
   {
-    const localStorageDriver = new LocalStorageDriver();
+    const localStorageDriver = new LocalPersistentStorageDriver();
     const publicResult = await localStorageDriver.uploadFile({
       buffer: Buffer.from("test_public_image"),
       filename: "test_vehicle_photo.jpg",

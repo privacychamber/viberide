@@ -100,7 +100,7 @@ export async function GET(
 
     // For Stream results (from LocalPersistentStorageDriver), return a ReadableStream
     if (result.type === "stream" && result.stream) {
-      return new NextResponse(result.stream, {
+      return new NextResponse(result.stream as unknown as BodyInit, {
         status: 200,
         headers: {
           "Content-Type": result.mimeType || "application/octet-stream",
