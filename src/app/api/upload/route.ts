@@ -125,15 +125,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // 6. Generate secure, user-scoped unique filename
-    const sanitizedBase = path
-      .basename(file.name, ext)
-      .replace(/[^a-zA-Z0-9_-]/g, "_")
-      .slice(0, 30);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const filename = `${session.user.id}-${uniqueSuffix}-${sanitizedBase}${ext}`;
+    // 6. Provide the original file name to the storage driver (it will generate a secure UUID-based key and use the extension)
+    const filename = file.name || "upload.bin";
 
-    // 7. Store using Cloudinary or secure local driver
+    // 7. Store using local persistent storage
     const storageDriver = getStorageDriver();
     const result = await storageDriver.uploadFile({
       buffer,

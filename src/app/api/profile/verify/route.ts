@@ -12,6 +12,23 @@ export async function POST(req: Request) {
 
     const { frontUrl, backUrl, selfieUrl } = await req.json();
 
+    // Ensure URLs strictly point to the user's secure KYC documents
+    const isValidKycUrl = (url: string) => {
+      if (!url) return false;
+      try {
+        // URLs must be relative to our API or start with our domain, and point to the user's KYC directory
+        return url.includes(`/api/documents/kyc%2F${session.user.id}`) || url.includes(`/api/documents/kyc/${session.user.id}`);
+      } catch {
+        return false;
+      }
+    };
+
+    if ((frontUrl && !isValidKycUrl(frontUrl)) || 
+        (backUrl && !isValidKycUrl(backUrl)) || 
+        (selfieUrl && !isValidKycUrl(selfieUrl))) {
+      return NextResponse.json({ error: "Invalid document URL provided. External URLs are not permitted." }, { status: 400 });
+    }
+
     await dbConnect();
 
     const user = await User.findById(session.user.id);
