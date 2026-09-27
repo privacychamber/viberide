@@ -1,0 +1,53 @@
+<?php
+// api/auth/login.php
+require_once '../../db.php';
+require_once '../../auth/jwt.php';
+
+$data = json_decode(file_get_contents("php://input"));
+
+if (!empty($data->phone)) {
+    $phone = $data->phone;
+    $password = !empty($data->password) ? $data->password : null;
+
+    $stmt = $conn->prepare("SELECT id, name, role, password FROM users WHERE phone = ?");
+    $stmt->execute([$phone]);
+    
+    if ($stmt->rowCount() > 0) {
+        $user = $stmt->fetch();
+        
+        // If password is required and provided, verify it. 
+        // If password is not set in DB (e.g. OTP login), we can skip this or add OTP logic.
+        if ($user['password'] && !password_verify($password, $user['password'])) {
+            http_response_code(401);
+            echo json_encode(["message" => "Invalid credentials."]);
+            exit();
+        }
+        
+        $payload = [
+            "id" => $user['id'],
+            "role" => $user['role'],
+            "iat" => time(),
+            "exp" => time() + (86400 * 30) // 30 days expiration
+        ];
+        
+        $jwt = JWT::encode($payload);
+        
+        http_response_code(200);
+        echo json_encode([
+            "message" => "Login successful.",
+            "token" => $jwt,
+            "user" => [
+                "id" => $user['id'],
+                "name" => $user['name'],
+                "role" => $user['role']
+            ]
+        ]);
+    } else {
+        http_response_code(401);
+        echo json_encode(["message" => "User not found."]);
+    }
+} else {
+    http_response_code(400);
+    echo json_encode(["message" => "Phone number is required."]);
+}
+?>

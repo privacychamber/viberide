@@ -109,7 +109,7 @@ export class LocalPersistentStorageDriver implements IStorageDriver {
 
     // Public vehicles fallback
     return {
-      url: `/uploads/vehicles/${objectKey}`,
+      url: `/uploads/vehicles/detail?id=${objectKey}`,
       filename: objectKey,
       isPrivate: false,
     };

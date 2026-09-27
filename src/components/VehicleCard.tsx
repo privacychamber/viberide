@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { MapPin, Fuel, ShieldAlert, Zap, Compass, Heart } from "lucide-react";
 
 export interface VehicleProp {
@@ -42,7 +42,7 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
     }
 
     try {
-      const res = await fetch(`/api/vehicles/${vehicle._id}/wishlist`, {
+      const res = await fetch(`/api/vehicles/detail?id=${vehicle._id}/wishlist`, {
         method: "POST",
       });
       if (res.ok) {
@@ -151,7 +151,7 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
             <span className="text-gray-400 text-xs"> / day</span>
           </div>
           <Link
-            href={`/vehicles/${vehicle._id}`}
+            href={`/vehicles/detail?id=${vehicle._id}`}
             className="bg-forest-green-light hover:bg-sunset-orange text-snow-white hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
           >
             Book Now

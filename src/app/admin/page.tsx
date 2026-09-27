@@ -1,6 +1,6 @@
 "use client";
  
-import { useSession } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -117,7 +117,7 @@ export default function AdminConsole() {
 
   const handleUpdateVehicle = async (vehicleId: string, updates: { status?: string; featured?: boolean; flagged?: boolean }) => {
     try {
-      const res = await fetch(`/api/admin/vehicles/${vehicleId}/approve`, {
+      const res = await fetch(`/api/admin/vehicles/detail?id=${vehicleId}/approve`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -135,7 +135,7 @@ export default function AdminConsole() {
   const handleDeleteVehicle = async (vehicleId: string) => {
     if (!confirm("Are you sure you want to permanently delete this listing?")) return;
     try {
-      const res = await fetch(`/api/owner/vehicles/${vehicleId}`, {
+      const res = await fetch(`/api/owner/vehicles/detail?id=${vehicleId}`, {
         method: "DELETE",
       });
 

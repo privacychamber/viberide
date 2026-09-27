@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { User, Shield, LogOut, Compass, FileText, Calendar, PlusCircle } from "lucide-react";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, logout } = useSession();
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
@@ -86,7 +86,7 @@ export default function Navbar() {
               />
             </Link>
             <button
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => logout()}
               className="p-2 bg-white/5 hover:bg-rose-500/20 hover:text-rose-400 rounded-full border border-white/5 transition-colors cursor-pointer"
               title="Logout"
             >

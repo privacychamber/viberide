@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -265,7 +265,7 @@ export default function OwnerDashboard() {
         }
       };
 
-      const res = await fetch(`/api/owner/vehicles/${editingVehicleId}`, {
+      const res = await fetch(`/api/owner/vehicles/detail?id=${editingVehicleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -288,7 +288,7 @@ export default function OwnerDashboard() {
     if (!confirm("Are you sure you want to delete this listing from your fleet?")) return;
 
     try {
-      const res = await fetch(`/api/owner/vehicles/${vehicleId}`, {
+      const res = await fetch(`/api/owner/vehicles/detail?id=${vehicleId}`, {
         method: "DELETE",
       });
 
@@ -329,7 +329,7 @@ export default function OwnerDashboard() {
   const handleSaveBlockedDates = async () => {
     setSavingBlockedDates(true);
     try {
-      const res = await fetch(`/api/owner/vehicles/${blockingVehicleId}/block-dates`, {
+      const res = await fetch(`/api/owner/vehicles/detail?id=${blockingVehicleId}/block-dates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ blockedDates: blockedDatesList }),

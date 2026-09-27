@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { Home, Compass, Calendar, PlusCircle, User } from "lucide-react";
 
 export default function BottomNav() {
