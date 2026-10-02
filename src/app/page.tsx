@@ -3,8 +3,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import VehicleCard from "@/components/VehicleCard";
-import dbConnect from "@/lib/dbConnect";
-import Vehicle from "@/models/Vehicle";
+
 import { Compass, ShieldCheck, MapPin, Zap, MessageSquare, ArrowRight, Search, Star, Shield, Clock, Calendar, ChevronDown, CheckCircle2, Navigation, Headphones, ChevronRight, Apple, Play, Bike, Flame, CarFront, Sparkles, Map, Tent, Users } from "lucide-react";
 
 // Static fallback items to ensure the app works beautifully even before DB is seeded or connected
@@ -46,19 +45,21 @@ const FALLBACK_VEHICLES = [
 
 async function getFeaturedVehicles() {
   try {
-    await dbConnect();
-    const dbVehicles = await Vehicle.find({}).limit(4).lean();
-    if (dbVehicles && dbVehicles.length > 0) {
-      return dbVehicles.map((v: any) => ({
-        ...v,
-        _id: v._id.toString(),
-        owner: v.owner.toString(),
-        createdAt: undefined,
-        updatedAt: undefined
-      }));
+    const res = await fetch("https://viberide.in/api/vehicles/index.php", {
+      next: { revalidate: 3600 } // revalidate every hour if supported, otherwise static
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.length > 0) {
+        return data.slice(0, 4).map((v: any) => ({
+          ...v,
+          _id: v.id ? v.id.toString() : (v._id ? v._id.toString() : Math.random().toString()),
+          owner: v.owner ? v.owner.toString() : "unknown",
+        }));
+      }
     }
   } catch (error) {
-    console.error("Failed to fetch vehicles from DB, falling back:", error);
+    console.error("Failed to fetch vehicles from PHP API, falling back:", error);
   }
   return FALLBACK_VEHICLES;
 }

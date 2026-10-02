@@ -1,0 +1,26 @@
+<IfModule mod_security2.c>
+    SecRuleRemoveById 9142
+</IfModule>
+
+RewriteEngine On
+
+# 1. If it's a real file, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# 2. Route extensionless paths to their .html equivalents (fixes the /signup loop)
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^(.*)$ /$1.html [L]
+
+# 3. If it's a directory (and no .html matched), let it pass
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/wearvpfc/viberide.in"
+PassengerBaseURI "/"
+PassengerNodejs "/home/wearvpfc/nodevenv/viberide.in/22/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+PassengerAppLogFile /home/wearvpfc/viberide.in/passenger.log

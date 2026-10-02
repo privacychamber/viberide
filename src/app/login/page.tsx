@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Phone, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
@@ -9,6 +9,7 @@ import { ArrowLeft, Phone, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useSession();
   const callbackUrl = searchParams.get("callbackUrl") || "/profile";
   const registered = searchParams.get("registered");
   const verified = searchParams.get("verified");
@@ -34,24 +35,47 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await signIn("credentials", {
-        phone,
-        password,
-        redirect: false,
+      const isEmail = phone.includes("@");
+      const identifier = isEmail ? phone.trim().toLowerCase() : phone.replace(/\D/g, "");
+
+      const res = await fetch("/api/process/l/index.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: identifier,
+          password,
+        }),
       });
+
+      const contentType = res.headers.get("content-type");
+      let data: any = null;
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        await res.text();
+        throw new Error("Server connection error. Please try again later.");
+      }
 
       setLoading(false);
 
-      if (res?.error) {
-        if (res.error.startsWith("UNVERIFIED_EMAIL:")) {
-          const unverifiedEmail = res.error.split(":")[1];
+      if (!res.ok) {
+        if (data?.message?.startsWith("UNVERIFIED_EMAIL:")) {
+          const unverifiedEmail = data.message.split(":")[1];
           router.push(`/verify-email?email=${encodeURIComponent(unverifiedEmail)}&reason=unverified`);
           return;
         }
-        setError(res.error || "Invalid credentials. Please check your details.");
-      } else {
+        throw new Error(data?.message || "Invalid credentials. Please check your details.");
+      }
+
+      if (data.token && data.user) {
+        login(data.token, data.user);
         router.push(callbackUrl);
         router.refresh();
+      } else {
+        throw new Error("Invalid response from server.");
       }
     } catch (err: any) {
       setLoading(false);

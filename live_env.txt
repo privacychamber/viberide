@@ -1,0 +1,4 @@
+DB_HOST=localhost
+DB_NAME=wearvpfc_viberide
+DB_USER=wearvpfc_viberide
+DB_PASS=viberideDB@2026

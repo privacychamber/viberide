@@ -1,0 +1,11 @@
+<IfModule mod_security2.c>
+    SecRuleRemoveById 9142
+</IfModule>
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/wearvpfc/viberide.in"
+PassengerBaseURI "/"
+PassengerNodejs "/home/wearvpfc/nodevenv/viberide.in/22/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+PassengerAppLogFile /home/wearvpfc/viberide.in/passenger.log

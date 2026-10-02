@@ -21,6 +21,11 @@ async function uploadApi() {
     await client.ensureDir(remoteApiDir);
     await client.uploadFromDir(apiDir);
     console.log("API Upload complete.");
+    
+    console.log("Uploading .env...");
+    await client.cd(process.env.FTP_REMOTE_DIR!);
+    await client.uploadFrom(path.resolve(process.cwd(), ".env"), ".env");
+    console.log(".env Upload complete.");
   } catch (err) {
     console.error(err);
   }

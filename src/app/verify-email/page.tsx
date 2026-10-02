@@ -2,12 +2,13 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useSession } from "@/context/AuthContext";
 import Link from "next/link";
 import { ArrowLeft, MailCheck, AlertCircle, CheckCircle2 } from "lucide-react";
 
 function VerifyEmailContent() {
   const router = useRouter();
+  const { login } = useSession();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const reason = searchParams.get("reason");
@@ -74,10 +75,11 @@ function VerifyEmailContent() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/verify-email", {
+      const res = await fetch("/api/process/v/index.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "verify",
           email,
           otp: fullOtp,
         }),
@@ -94,26 +96,19 @@ function VerifyEmailContent() {
       // Automatically sign in the user without any blocker
       let destination = "/profile";
       try {
-        const stored = sessionStorage.getItem("viberide_auth_handoff");
-        if (stored) {
-          const authData = JSON.parse(stored);
-          sessionStorage.removeItem("viberide_auth_handoff");
-
-          if (authData.role === "owner") {
-            destination = "/owner";
+        if (data.token && data.user) {
+          login(data.token, data.user);
+          
+          const stored = sessionStorage.getItem("viberide_auth_handoff");
+          if (stored) {
+            const authData = JSON.parse(stored);
+            if (authData.role === "owner") destination = "/owner";
+            sessionStorage.removeItem("viberide_auth_handoff");
           }
-
-          const loginRes = await signIn("credentials", {
-            phone: authData.phone || email,
-            password: authData.password,
-            redirect: false,
-          });
-
-          if (!loginRes?.error) {
-            router.push(destination);
-            router.refresh();
-            return;
-          }
+          
+          router.push(destination);
+          router.refresh();
+          return;
         }
       } catch (authErr) {
         console.warn("Auto-login fallback:", authErr);
@@ -137,7 +132,7 @@ function VerifyEmailContent() {
     setSuccessMsg("");
 
     try {
-      const res = await fetch("/api/auth/verify-email", {
+      const res = await fetch("/api/process/v/index.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

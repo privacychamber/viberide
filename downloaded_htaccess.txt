@@ -1,0 +1,15 @@
+Options -MultiViews
+RewriteEngine On
+
+# 1. If it's a real file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. If a .php file with that name exists, rewrite to it
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# 3. Fallback for directories that need index.php explicitly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ $1/index.php [L]

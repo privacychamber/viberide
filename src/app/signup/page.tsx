@@ -94,10 +94,19 @@ export default function SignupPage() {
         }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type");
+      let data: Record<string, unknown> | null = null;
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const rawText = await res.text();
+        console.error(`Received non-JSON response (Status ${res.status}):`, rawText.substring(0, 500));
+        throw new Error(`Server connection error. Please try again later. (Status ${res.status})`);
+      }
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to create account. Please try again.");
+        throw new Error((data?.message as string) || "Failed to create account. Please try again.");
       }
 
       // Store temporary auth handoff for instant zero-blocker dashboard login
@@ -117,8 +126,12 @@ export default function SignupPage() {
 
       // Redirect to OTP verification
       router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim().toLowerCase())}`);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
