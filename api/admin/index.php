@@ -24,6 +24,14 @@ if ($method === 'GET') {
     // 1. Fetch Users
     $stmt = $conn->query("SELECT id, name, email, phone, role, license_front_url, license_back_url, selfie_url, license_status, verified, flagged, suspended, created_at FROM users ORDER BY created_at DESC");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (!function_exists('formatDocUrl')) {
+        function formatDocUrl($id) {
+            if (!$id) return null;
+            if (strpos($id, 'http') === 0 || strpos($id, '/uploads/') === 0) return $id;
+            return '/api/document/index.php?file=' . urlencode($id);
+        }
+    }
 
     foreach ($users as $u) {
         $mappedUser = [
@@ -38,10 +46,10 @@ if ($method === 'GET') {
             'createdAt' => $u['created_at'],
             'license' => [
                 'status' => $u['license_status'],
-                'frontUrl' => $u['license_front_url'],
-                'backUrl' => $u['license_back_url']
+                'frontUrl' => formatDocUrl($u['license_front_url']),
+                'backUrl' => formatDocUrl($u['license_back_url'])
             ],
-            'selfieUrl' => $u['selfie_url']
+            'selfieUrl' => formatDocUrl($u['selfie_url'])
         ];
         
         $response['allUsers'][] = $mappedUser;
@@ -79,8 +87,8 @@ if ($method === 'GET') {
                 'phone' => $v['owner_phone']
             ],
             'documents' => [
-                'rcUrl' => $v['doc_rc_url'],
-                'insuranceUrl' => $v['doc_insurance_url']
+                'rcUrl' => formatDocUrl($v['doc_rc_url']),
+                'insuranceUrl' => formatDocUrl($v['doc_insurance_url'])
             ]
         ];
 

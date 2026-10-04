@@ -14,7 +14,12 @@ if ($method === 'GET') {
     
     if ($stmt->rowCount() > 0) {
         $profile = $stmt->fetch();
-        
+        function formatDocUrl($id) {
+            if (!$id) return null;
+            if (strpos($id, 'http') === 0 || strpos($id, '/uploads/') === 0) return $id;
+            return '/api/document/index.php?file=' . urlencode($id);
+        }
+
         // Map to frontend expectations
         $formattedUser = [
             'id' => $profile['id'],
@@ -28,9 +33,9 @@ if ($method === 'GET') {
             'created_at' => $profile['created_at'],
             'license' => [
                 'status' => $profile['license_status'],
-                'frontUrl' => $profile['license_front_url'],
-                'backUrl' => $profile['license_back_url'],
-                'selfieUrl' => $profile['selfie_url']
+                'frontUrl' => formatDocUrl($profile['license_front_url']),
+                'backUrl' => formatDocUrl($profile['license_back_url']),
+                'selfieUrl' => formatDocUrl($profile['selfie_url'])
             ],
             'wishlist' => []
         ];

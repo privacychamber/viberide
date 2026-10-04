@@ -18,25 +18,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
         
+        $category = isset($_POST['category']) ? $_POST['category'] : 'public';
+        $isPrivate = ($category === 'kyc' || $category === 'vehicle_doc');
+        
         // Define upload directory relative to this script
-        // Storing in a root uploads folder
-        $uploadDir = '../../uploads/';
+        if ($isPrivate) {
+            $uploadDir = '../../.private_kyc/';
+        } else {
+            $uploadDir = '../../uploads/';
+        }
+        
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
         
+        // Ensure .private_kyc is protected from direct Apache access
+        if ($isPrivate && !file_exists($uploadDir . '.htaccess')) {
+            file_put_contents($uploadDir . '.htaccess', "Deny from all\n");
+        }
+        
         // Generate unique file name
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('upload_') . '_' . time() . '.' . $extension;
+        $prefix = $isPrivate ? 'private_' . $category . '_' : 'upload_';
+        $filename = uniqid($prefix) . '_' . time() . '.' . $extension;
         $destination = $uploadDir . $filename;
         
         if (move_uploaded_file($file['tmp_name'], $destination)) {
             http_response_code(201);
-            // Return public URL path
+            
+            // Return public URL path or the private API endpoint for preview
+            $url = $isPrivate ? "/api/document/index.php?file=" . $filename : "/uploads/" . $filename;
+            
             echo json_encode([
                 "success" => true,
                 "message" => "File uploaded successfully.",
-                "url" => "/uploads/" . $filename
+                "url" => $url
             ]);
         } else {
             http_response_code(500);

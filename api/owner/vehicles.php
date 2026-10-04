@@ -22,6 +22,11 @@ if ($method === 'POST' && !$vehicle_id) {
         $stmt = $conn->prepare($query);
         $images = !empty($data->images) ? json_encode($data->images) : json_encode([]);
         
+        function extractFileId($url) {
+            if (!$url) return '';
+            return str_replace('/api/document/index.php?file=', '', $url);
+        }
+
         if ($stmt->execute([
             $data->title,
             $data->type,
@@ -34,8 +39,8 @@ if ($method === 'POST' && !$vehicle_id) {
             $data->location->country ?? 'India',
             $user['id'],
             $images,
-            $data->documents->rcUrl ?? '',
-            $data->documents->insuranceUrl ?? '',
+            extractFileId($data->documents->rcUrl ?? ''),
+            extractFileId($data->documents->insuranceUrl ?? ''),
             $data->specs->engineCc ?? 0,
             $data->specs->fuelType ?? 'Petrol',
             $data->specs->transmission ?? 'Manual',
@@ -97,6 +102,13 @@ elseif ($method === 'PUT' && $vehicle_id) {
         $stmt = $conn->prepare($query);
         $images = !empty($data->images) ? json_encode($data->images) : json_encode([]);
         
+        if (!function_exists('extractFileId')) {
+            function extractFileId($url) {
+                if (!$url) return '';
+                return str_replace('/api/document/index.php?file=', '', $url);
+            }
+        }
+
         if ($stmt->execute([
             $data->title,
             $data->type,
@@ -108,8 +120,8 @@ elseif ($method === 'PUT' && $vehicle_id) {
             $data->location->state ?? 'Himachal Pradesh',
             $data->location->country ?? 'India',
             $images,
-            $data->documents->rcUrl ?? '',
-            $data->documents->insuranceUrl ?? '',
+            extractFileId($data->documents->rcUrl ?? ''),
+            extractFileId($data->documents->insuranceUrl ?? ''),
             $data->specs->engineCc ?? 0,
             $data->specs->fuelType ?? 'Petrol',
             $data->specs->transmission ?? 'Manual',

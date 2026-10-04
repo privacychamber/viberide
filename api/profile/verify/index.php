@@ -10,6 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!empty($data->frontUrl) && !empty($data->backUrl) && !empty($data->selfieUrl)) {
         
+        function extractFileId($url) {
+            return str_replace('/api/document/index.php?file=', '', $url);
+        }
+
         $query = "UPDATE users SET 
             license_front_url = ?, 
             license_back_url = ?, 
@@ -20,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($query);
         
         if ($stmt->execute([
-            $data->frontUrl,
-            $data->backUrl,
-            $data->selfieUrl,
+            extractFileId($data->frontUrl),
+            extractFileId($data->backUrl),
+            extractFileId($data->selfieUrl),
             $user['id']
         ])) {
             http_response_code(200);
