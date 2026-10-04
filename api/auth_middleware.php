@@ -17,6 +17,21 @@ function authenticate() {
                     echo json_encode(["message" => "Token expired."]);
                     exit();
                 }
+                
+                // Enforce suspension (Phase 6C)
+                global $conn;
+                if (isset($conn)) {
+                    $stmt = $conn->prepare("SELECT suspended FROM users WHERE id = ?");
+                    $stmt->execute([$decoded['id']]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($user && $user['suspended']) {
+                        http_response_code(403);
+                        echo json_encode(["message" => "Your account has been suspended by an administrator."]);
+                        exit();
+                    }
+                }
+                
                 return $decoded;
             }
         }

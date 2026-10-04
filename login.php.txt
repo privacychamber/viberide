@@ -1,7 +1,7 @@
 <?php
 // api/auth/login.php
-require_once '../../db.php';
-require_once '../../auth/jwt.php';
+require_once '../db.php';
+require_once 'jwt.php';
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -9,17 +9,11 @@ if (!empty($data->phone)) {
     $phone = $data->phone;
     $password = !empty($data->password) ? $data->password : null;
 
-    $stmt = $conn->prepare("SELECT id, name, role, password, suspended FROM users WHERE phone = ? OR email = ?");
-    $stmt->execute([$phone, $phone]);
+    $stmt = $conn->prepare("SELECT id, name, role, password FROM users WHERE phone = ?");
+    $stmt->execute([$phone]);
     
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        
-        if ($user['suspended']) {
-            http_response_code(403);
-            echo json_encode(["message" => "Your account has been suspended by an administrator."]);
-            exit();
-        }
         
         // If password is required and provided, verify it. 
         // If password is not set in DB (e.g. OTP login), we can skip this or add OTP logic.

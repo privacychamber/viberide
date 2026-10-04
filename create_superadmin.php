@@ -8,15 +8,16 @@ try {
     $user = $stmt->fetch();
 
     if ($user) {
-        $stmt = $conn->prepare("UPDATE users SET role = 'superadmin' WHERE email = ?");
-        $stmt->execute(['weareonetechnation@gmail.com']);
-        echo "User updated to superadmin.";
+        $stmt = $conn->prepare("UPDATE users SET role = 'superadmin', phone = '9999999998', password = ? WHERE email = ?");
+        $password = password_hash('Admin@123!', PASSWORD_BCRYPT);
+        $stmt->execute([$password, 'weareonetechnation@gmail.com']);
+        echo "User updated to superadmin and phone set.";
     } else {
         // Hash a default password
         $password = password_hash('Admin@123!', PASSWORD_BCRYPT);
         
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'superadmin')");
-        $stmt->execute(['Super Admin', 'weareonetechnation@gmail.com', $password]);
+        $stmt = $conn->prepare("INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'superadmin')");
+        $stmt->execute(['Super Admin', 'weareonetechnation@gmail.com', '9999999998', $password]);
         echo "User created as superadmin with password Admin@123!";
     }
 } catch(PDOException $e) {

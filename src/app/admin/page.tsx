@@ -8,10 +8,10 @@ import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { 
   Shield, Users, Calendar, TrendingUp, Check, X, ShieldAlert, FileText, 
-  Image as ImageIcon, MapPin, Star, Flag, Search, Trash2, CheckCircle, Clock 
+  Image as ImageIcon, MapPin, Star, Flag, Search, Trash2, CheckCircle, Clock, Ban 
 } from "lucide-react";
 
-type TabType = "kyc" | "vehicles" | "fleet" | "users";
+type TabType = "kyc" | "vehicles" | "fleet" | "users" | "bookings";
 
 export default function AdminConsole() {
   const { data: session } = useSession();
@@ -25,6 +25,11 @@ export default function AdminConsole() {
   const [vehiclesQueue, setVehiclesQueue] = useState<any[]>([]);
   const [allVehicles, setAllVehicles] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  
+  // Bookings state
+  const [allBookings, setAllBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
   
   // Search states
   const [userSearch, setUserSearch] = useState("");
@@ -52,7 +57,10 @@ export default function AdminConsole() {
     if (!session?.user?.id || session.user.role !== "admin") return;
     setLoadingDashboard(true);
     try {
-      const res = await fetch("/api/admin");
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/admin/index.php", {
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
+      });
       if (res.ok) {
         const data = await res.json();
         setUsersQueue(data.usersQueue || []);
@@ -83,9 +91,13 @@ export default function AdminConsole() {
 
   const handleVerifyUser = async (userId: string, action: "verify" | "reject") => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/users.php?id=${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify({ action }),
       });
 
@@ -100,9 +112,13 @@ export default function AdminConsole() {
 
   const handleFlagUser = async (userId: string, flagged: boolean) => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/users.php?id=${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify({ flagged }),
       });
 
@@ -115,11 +131,40 @@ export default function AdminConsole() {
     }
   };
 
+  const handleSuspendUser = async (userId: string, suspended: boolean) => {
+    if (suspended && !confirm("Are you sure you want to suspend this user? They will lose access to their account.")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/users.php?id=${userId}`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({ suspended }),
+      });
+
+      if (res.ok) {
+        triggerMessage(`User account ${suspended ? "suspended" : "unsuspended"}.`);
+        await fetchAdminData();
+      } else {
+        const error = await res.json();
+        triggerMessage(error.message || "Failed to update suspension status.");
+      }
+    } catch (error) {
+      console.error("Failed to update user suspension status:", error);
+    }
+  };
+
   const handleUpdateVehicle = async (vehicleId: string, updates: { status?: string; featured?: boolean; flagged?: boolean }) => {
     try {
-      const res = await fetch(`/api/admin/vehicles/detail?id=${vehicleId}/approve`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/vehicles.php?id=${vehicleId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify(updates),
       });
 
@@ -135,8 +180,12 @@ export default function AdminConsole() {
   const handleDeleteVehicle = async (vehicleId: string) => {
     if (!confirm("Are you sure you want to permanently delete this listing?")) return;
     try {
-      const res = await fetch(`/api/owner/vehicles/detail?id=${vehicleId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/vehicles.php?id=${vehicleId}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        }
       });
 
       if (res.ok) {
@@ -147,6 +196,52 @@ export default function AdminConsole() {
       console.error("Failed to delete vehicle:", error);
     }
   };
+
+  const handleUpdateBooking = async (bookingId: string, status: string) => {
+    if (status === "cancelled" && !confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/bookings.php?id=${bookingId}`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (res.ok) {
+        triggerMessage(`Booking ${status} successfully.`);
+        await fetchBookings();
+      }
+    } catch (error) {
+      console.error("Failed to update booking:", error);
+    }
+  };
+
+  const fetchBookings = async () => {
+    setLoadingBookings(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/admin/bookings.php?status=all", {
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAllBookings(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error("Failed to load admin bookings:", error);
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "bookings" && allBookings.length === 0) {
+      fetchBookings();
+    }
+  }, [activeTab]);
 
   if (!session) {
     return (
@@ -316,6 +411,18 @@ export default function AdminConsole() {
           >
             <Users className="w-4 h-4" />
             <span>User Directory ({allUsers.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className={`px-4 py-2.5 font-heading text-xs font-black uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 shrink-0 ${
+              activeTab === "bookings"
+                ? "border-sunset-orange text-sunset-orange"
+                : "border-transparent text-gray-500 hover:text-gray-300 hover:border-white/10"
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>Bookings</span>
           </button>
         </div>
 
@@ -710,6 +817,11 @@ export default function AdminConsole() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-[10px] uppercase font-bold text-gray-300">{user.role}</span>
+                          {user.suspended && (
+                            <span className="ml-2 px-1.5 py-0.5 bg-rose-500 text-white text-[8px] rounded uppercase font-black tracking-widest">
+                              Suspended
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${
@@ -725,17 +837,30 @@ export default function AdminConsole() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <button
-                            onClick={() => handleFlagUser(user._id, !user.flagged)}
-                            className={`p-1.5 border rounded-lg transition-colors cursor-pointer ${
-                              user.flagged
-                                ? "bg-rose-500/15 border-rose-500/35 text-rose-400"
-                                : "bg-white/5 border-white/10 text-gray-600 hover:text-rose-400 hover:bg-rose-500/10"
-                            }`}
-                            title={user.flagged ? "Unflag User" : "Flag User"}
-                          >
-                            <Flag className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleFlagUser(user._id, !user.flagged)}
+                              className={`p-1.5 border rounded-lg transition-colors cursor-pointer ${
+                                user.flagged
+                                  ? "bg-rose-500/15 border-rose-500/35 text-rose-400"
+                                  : "bg-white/5 border-white/10 text-gray-600 hover:text-rose-400 hover:bg-rose-500/10"
+                              }`}
+                              title={user.flagged ? "Unflag User" : "Flag User"}
+                            >
+                              <Flag className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleSuspendUser(user._id, !user.suspended)}
+                              className={`p-1.5 border rounded-lg transition-colors cursor-pointer ${
+                                user.suspended
+                                  ? "bg-rose-500 border-rose-500 text-white"
+                                  : "bg-white/5 border-white/10 text-gray-600 hover:text-rose-400 hover:bg-rose-500/10"
+                              }`}
+                              title={user.suspended ? "Unsuspend User" : "Suspend User"}
+                            >
+                              <Ban className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-right">
                           {user.license?.status === "pending" && (
@@ -763,6 +888,89 @@ export default function AdminConsole() {
             ) : (
               <div className="text-center py-12 text-xs text-gray-500 border border-dashed border-white/5 rounded-xl">
                 No users matched the search criteria.
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Tab 5: Global Bookings */}
+        {activeTab === "bookings" && (
+          <section className="bg-mountain-black-light border border-white/5 p-6 rounded-2xl shadow-xl space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+              <h2 className="font-heading font-extrabold text-lg text-snow-white flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-sunset-orange" />
+                <span>Platform Bookings</span>
+              </h2>
+              
+              <div className="flex flex-wrap gap-2">
+                {["all", "pending", "approved", "completed", "cancelled", "rejected"].map(status => (
+                  <button
+                    key={status}
+                    onClick={() => setBookingStatusFilter(status)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
+                      bookingStatusFilter === status
+                        ? "bg-sunset-orange text-snow-white"
+                        : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-snow-white"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {loadingBookings ? (
+              <div className="space-y-4 animate-pulse">
+                {[1, 2, 3].map(n => (
+                  <div key={n} className="bg-white/5 h-24 rounded-xl border border-white/5" />
+                ))}
+              </div>
+            ) : allBookings.length > 0 ? (
+              <div className="space-y-4">
+                {allBookings.filter(b => bookingStatusFilter === "all" || b.status === bookingStatusFilter).map((b, i) => (
+                  <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                    <div className="flex-grow space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-heading font-black text-snow-white text-lg">Booking #{b.id} - {b.vehicle?.title || "Unknown Vehicle"}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          b.status === "completed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                          b.status === "approved" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                          b.status === "pending" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                          "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        }`}>
+                          {b.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div className="text-gray-400">
+                          <strong className="text-gray-300 block">Renter:</strong> {b.renter?.name} <br/> {b.renter?.phone}
+                        </div>
+                        <div className="text-gray-400">
+                          <strong className="text-gray-300 block">Owner:</strong> {b.vehicle?.ownerName} <br/> {b.vehicle?.ownerPhone}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t border-white/5">
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {new Date(b.fromDate).toLocaleDateString()} &rarr; {new Date(b.toDate).toLocaleDateString()}</span>
+                        <span className="font-bold text-snow-white">₹{b.totalPrice}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
+                      {(b.status === "pending" || b.status === "approved") && (
+                        <button
+                          onClick={() => handleUpdateBooking(b.id, "cancelled")}
+                          className="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex-grow text-center"
+                        >
+                          Cancel Booking
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-xs text-gray-500 border border-dashed border-white/5 rounded-xl">
+                No bookings found.
               </div>
             )}
           </section>

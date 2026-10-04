@@ -61,61 +61,31 @@ export default function VehicleDetailsClient({
     setLoading(true);
 
     try {
-      // Determine if offline/fallback vehicle
-      const isFallback = vehicle._id.startsWith("fb_");
-
-      if (isFallback) {
-        // Mock flow using LocalStorage
-        const mockBooking = {
-          _id: "mock_bk_" + Math.random().toString(36).substr(2, 9),
-          vehicle: {
-            _id: vehicle._id,
-            title: vehicle.title,
-            brand: vehicle.brand,
-            model: vehicle.model,
-            pricePerDay: vehicle.pricePerDay,
-            location: vehicle.location,
-            images: vehicle.images,
-          },
+      // Real DB booking flow using API route
+      const token = localStorage.getItem("token");
+      const response = await fetch("/api/bookings/index.php", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({
+          vehicleId: vehicle._id,
           fromDate,
           toDate,
           totalPrice,
-          status: "pending",
-          createdAt: new Date().toISOString(),
-        };
+        }),
+      });
 
-        const existing = JSON.parse(localStorage.getItem("mock_bookings") || "[]");
-        existing.push(mockBooking);
-        localStorage.setItem("mock_bookings", JSON.stringify(existing));
+      const data = await response.json();
+      setLoading(false);
 
-        setTimeout(() => {
-          setLoading(false);
-          setSuccess(true);
-          setBookingDetails(mockBooking);
-        }, 1200);
-      } else {
-        // Real DB booking flow using API route
-        const response = await fetch("/api/bookings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vehicleId: vehicle._id,
-            fromDate,
-            toDate,
-            totalPrice,
-          }),
-        });
-
-        const data = await response.json();
-        setLoading(false);
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to request booking");
-        }
-
-        setSuccess(true);
-        setBookingDetails(data.booking);
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to request booking");
       }
+
+      setSuccess(true);
+      setBookingDetails(data.booking);
     } catch (err: any) {
       setLoading(false);
       setError(err.message || "An unexpected error occurred.");

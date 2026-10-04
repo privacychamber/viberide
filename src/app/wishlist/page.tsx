@@ -27,7 +27,12 @@ export default function WishlistPage() {
     if (!session?.user?.id) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/profile");
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/profile/index.php", {
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setWishlist(data.user.wishlist || []);

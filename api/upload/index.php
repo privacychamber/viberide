@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
         if (!in_array($file['type'], $allowedTypes)) {
             http_response_code(400);
-            echo json_encode(["message" => "Invalid file type. Only JPG, PNG, WEBP, and PDF are allowed."]);
+            echo json_encode(["success" => false, "error" => "Invalid file type. Only JPG, PNG, WEBP, and PDF are allowed."]);
             exit();
         }
         
         // Define upload directory relative to this script
-        // Storing in a public uploads folder
-        $uploadDir = '../../public/uploads/';
+        // Storing in a root uploads folder
+        $uploadDir = '../../uploads/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -34,16 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(201);
             // Return public URL path
             echo json_encode([
+                "success" => true,
                 "message" => "File uploaded successfully.",
                 "url" => "/uploads/" . $filename
             ]);
         } else {
             http_response_code(500);
-            echo json_encode(["message" => "Failed to move uploaded file."]);
+            echo json_encode(["success" => false, "error" => "Failed to move uploaded file."]);
         }
     } else {
         http_response_code(400);
-        echo json_encode(["message" => "No file uploaded or upload error occurred."]);
+        echo json_encode(["success" => false, "error" => "No file uploaded or upload error occurred."]);
     }
 } else {
     http_response_code(405);

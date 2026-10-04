@@ -7,75 +7,6 @@ import BottomNav from "@/components/BottomNav";
 import VehicleDetailsClient from "@/components/VehicleDetailsClient";
 import { useSession } from "@/context/AuthContext";
 
-const FALLBACK_VEHICLES = [
-  {
-    _id: "fb_himalayan",
-    title: "Royal Enfield Himalayan 450",
-    type: "bike",
-    brand: "Royal Enfield",
-    model: "Himalayan 450",
-    pricePerDay: 1800,
-    location: "McLeod Ganj",
-    images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
-    specs: { engineCc: 450, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: true }
-  },
-  {
-    _id: "fb_activa",
-    title: "Honda Activa 6G (Matte Grey)",
-    type: "scooter",
-    brand: "Honda",
-    model: "Activa 6G",
-    pricePerDay: 450,
-    location: "Bir Colony",
-    images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
-    specs: { engineCc: 110, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
-  },
-  {
-    _id: "fb_thar",
-    title: "Mahindra Thar 4x4 (Hard Top)",
-    type: "car",
-    brand: "Mahindra",
-    model: "Thar 4x4",
-    pricePerDay: 3500,
-    location: "Landing Site",
-    images: ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"],
-    specs: { engineCc: 2184, fuelType: "Diesel", transmission: "Manual", seatingCapacity: 4, deliveryAvailable: true }
-  },
-  {
-    _id: "fb_ktm",
-    title: "KTM Duke 390",
-    type: "bike",
-    brand: "KTM",
-    model: "Duke 390",
-    pricePerDay: 2200,
-    location: "Bhagsu",
-    images: ["https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80"],
-    specs: { engineCc: 373, fuelType: "Petrol", transmission: "Geared", seatingCapacity: 2, deliveryAvailable: false }
-  },
-  {
-    _id: "fb_access",
-    title: "Suzuki Access 125 SE",
-    type: "scooter",
-    brand: "Suzuki",
-    model: "Access 125",
-    pricePerDay: 500,
-    location: "Dharamkot",
-    images: ["https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&w=800&q=80"],
-    specs: { engineCc: 124, fuelType: "Petrol", transmission: "Non-Geared", seatingCapacity: 2, deliveryAvailable: true }
-  },
-  {
-    _id: "fb_ather",
-    title: "Ather 450X Gen 3 (Electric)",
-    type: "scooter",
-    brand: "Ather",
-    model: "450X",
-    pricePerDay: 700,
-    location: "Bir Colony",
-    images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
-    specs: { fuelType: "Electric", transmission: "Automatic", seatingCapacity: 2, deliveryAvailable: true }
-  }
-];
-
 export default function VehicleDetailsPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -86,29 +17,23 @@ export default function VehicleDetailsPage() {
 
   useEffect(() => {
     if (!id) return;
-    const fallbackMatch = FALLBACK_VEHICLES.find(v => v._id === id);
-    if (fallbackMatch) {
-      setVehicle(fallbackMatch);
-      setLoading(false);
-    } else {
-      fetch(`/api/vehicles`)
-        .then(res => res.json())
-        .then(data => {
-          const v = data.find((v: any) => v.id === id || v.id === parseInt(id));
-          if (v) {
-            setVehicle({
-              ...v,
-              _id: v.id,
-              owner: v.owner_id
-            });
-          }
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
-    }
+    
+    fetch(`/api/vehicles/detail.php?id=${id}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Vehicle not found");
+        }
+        return res.json();
+      })
+      .then(data => {
+        setVehicle(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setVehicle(null);
+        setLoading(false);
+      });
   }, [id]);
 
   const dbUserVerificationStatus = session?.user?.verified ? "verified" : "none";

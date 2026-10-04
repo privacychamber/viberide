@@ -87,7 +87,10 @@ export default function OwnerDashboard() {
     if (!session?.user?.id) return;
     setLoadingDashboard(true);
     try {
-      const res = await fetch("/api/owner");
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/owner/index.php", {
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
+      });
       if (res.ok) {
         const data = await res.json();
         setVehicles(data.vehicles || []);
@@ -112,7 +115,11 @@ export default function OwnerDashboard() {
   const handleBecomeHost = async () => {
     setActivating(true);
     try {
-      const res = await fetch("/api/owner/activate", { method: "POST" });
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/owner/activate.php", { 
+        method: "POST",
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
+      });
       if (res.ok) {
         // Update next-auth session user role
         await updateSession({
@@ -188,9 +195,13 @@ export default function OwnerDashboard() {
         }
       };
 
-      const res = await fetch("/api/owner/vehicles", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/owner/vehicles.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify(payload),
       });
 
@@ -265,9 +276,13 @@ export default function OwnerDashboard() {
         }
       };
 
-      const res = await fetch(`/api/owner/vehicles/detail?id=${editingVehicleId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/owner/vehicles.php?id=${editingVehicleId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify(payload),
       });
 
@@ -288,8 +303,10 @@ export default function OwnerDashboard() {
     if (!confirm("Are you sure you want to delete this listing from your fleet?")) return;
 
     try {
-      const res = await fetch(`/api/owner/vehicles/detail?id=${vehicleId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/owner/vehicles.php?id=${vehicleId}`, {
         method: "DELETE",
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
       });
 
       if (res.ok) {
@@ -329,9 +346,13 @@ export default function OwnerDashboard() {
   const handleSaveBlockedDates = async () => {
     setSavingBlockedDates(true);
     try {
-      const res = await fetch(`/api/owner/vehicles/detail?id=${blockingVehicleId}/block-dates`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/owner/vehicles.php?id=${blockingVehicleId}&action=block-dates`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify({ blockedDates: blockedDatesList }),
       });
 
@@ -346,11 +367,15 @@ export default function OwnerDashboard() {
     }
   };
 
-  const handleBookingAction = async (bookingId: string, status: "approved" | "rejected") => {
+  const handleBookingAction = async (bookingId: string, status: "approved" | "rejected" | "cancelled" | "completed") => {
     try {
-      const res = await fetch(`/api/owner/bookings/${bookingId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/owner/bookings.php?id=${bookingId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify({ status }),
       });
 
@@ -539,6 +564,66 @@ export default function OwnerDashboard() {
               ) : (
                 <div className="text-center py-8 text-xs text-gray-500 border border-dashed border-white/5 rounded-xl">
                   No pending booking requests. Approved bookings appear in trips history.
+                </div>
+              )}
+            </section>
+            
+            {/* Active Trips */}
+            <section className="bg-mountain-black-light border border-white/5 p-6 rounded-2xl shadow-xl space-y-6">
+              <h2 className="font-heading font-extrabold text-lg text-snow-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-400" />
+                <span>Active & Past Trips</span>
+              </h2>
+
+              {loadingDashboard ? (
+                <div className="space-y-4">
+                  {[1, 2].map((n) => (
+                    <div key={n} className="bg-mountain-black border border-white/5 p-4 rounded-xl h-24 animate-pulse" />
+                  ))}
+                </div>
+              ) : bookings.filter(b => b.status !== "pending").length > 0 ? (
+                <div className="space-y-4">
+                  {bookings.filter(b => b.status !== "pending").map((booking) => (
+                    <div key={booking._id} className="bg-mountain-black border border-white/5 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div>
+                        <span className="text-[10px] bg-white/5 text-gray-400 px-2 py-0.5 rounded font-mono">{booking.vehicle.title}</span>
+                        <div className="text-xs text-gray-400 mt-2 space-y-1">
+                          <p><strong className="text-snow-white">Renter:</strong> {booking.user.name} ({booking.user.phone})</p>
+                          <p><strong className="text-snow-white">Dates:</strong> {new Date(booking.fromDate).toLocaleDateString()} to {new Date(booking.toDate).toLocaleDateString()}</p>
+                          <p><strong className="text-snow-white">Total Payout:</strong> <span className="text-emerald-400 font-bold">₹{booking.totalPrice}</span></p>
+                          <p><strong className="text-snow-white">Status:</strong> <span className={`font-bold ${booking.status === 'approved' ? 'text-emerald-400' : booking.status === 'cancelled' ? 'text-rose-400' : booking.status === 'rejected' ? 'text-rose-400' : 'text-gray-400'}`}>{booking.status.toUpperCase()}</span></p>
+                        </div>
+                      </div>
+                      
+                      {/* Action buttons */}
+                      {booking.status === "approved" && (
+                        <div className="flex gap-2 w-full sm:w-auto shrink-0 flex-col sm:flex-row">
+                          <button
+                            onClick={() => handleBookingAction(booking._id, "completed")}
+                            className="bg-forest-green-light/10 border border-forest-green-light/25 text-forest-green-light px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-forest-green-light hover:text-white transition-all cursor-pointer"
+                          >
+                            <Award className="w-4 h-4" />
+                            Mark Completed
+                          </button>
+                          <button
+                            onClick={() => {
+                              if(confirm("Are you sure you want to cancel this approved booking?")) {
+                                handleBookingAction(booking._id, "cancelled");
+                              }
+                            }}
+                            className="bg-rose-500/10 border border-rose-500/25 text-rose-400 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-rose-500 hover:text-white transition-all cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-xs text-gray-500 border border-dashed border-white/5 rounded-xl">
+                  No active or past trips yet.
                 </div>
               )}
             </section>

@@ -42,8 +42,12 @@ export default function VehicleCard({ vehicle }: { vehicle: VehicleProp }) {
     }
 
     try {
-      const res = await fetch(`/api/vehicles/detail?id=${vehicle._id}/wishlist`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/wishlist/index.php?id=${vehicle._id}`, {
         method: "POST",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        }
       });
       if (res.ok) {
         const data = await res.json();

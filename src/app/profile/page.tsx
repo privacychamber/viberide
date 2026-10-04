@@ -21,7 +21,6 @@ export default function ProfilePage() {
 
   const [dbUser, setDbUser] = useState<any>(null);
   const [dbBookings, setDbBookings] = useState<any[]>([]);
-  const [mockBookings, setMockBookings] = useState<any[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   // Auto redirect if not logged in
@@ -36,12 +35,13 @@ export default function ProfilePage() {
     if (!session?.user?.id) return;
     setLoadingProfile(true);
 
-    // Load mock bookings from localStorage
-    const localBk = JSON.parse(localStorage.getItem("mock_bookings") || "[]");
-    setMockBookings(localBk);
-
     try {
-      const res = await fetch("/api/profile");
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/profile/index.php", {
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setDbUser(data.user);
@@ -60,6 +60,29 @@ export default function ProfilePage() {
     }
   }, [session]);
 
+  const handleCancel = async (id: number) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/bookings/index.php?id=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({ status: "cancelled" })
+      });
+      if (res.ok) {
+        loadProfileAndBookings();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to cancel booking.");
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -70,8 +93,12 @@ export default function ProfilePage() {
     
     setUploading(true);
     try {
-      const res = await fetch("/api/upload", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/upload/index.php", {
         method: "POST",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: formData,
       });
       const data = await res.json();
@@ -94,16 +121,25 @@ export default function ProfilePage() {
     setUploading(true);
 
     try {
-      // Simulate file upload by setting high-res placeholders if not specified
+      if (!frontImage || !backImage || !selfieImage) {
+        alert("Please upload all 3 documents: Front DL, Back DL, and Selfie.");
+        setUploading(false);
+        return;
+      }
+
       const payload = {
-        frontUrl: frontImage || "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
-        backUrl: backImage || "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?auto=format&fit=crop&w=600&q=80",
-        selfieUrl: selfieImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+        frontUrl: frontImage,
+        backUrl: backImage,
+        selfieUrl: selfieImage,
       };
 
-      const res = await fetch("/api/profile/verify", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/profile/verify/index.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
         body: JSON.stringify(payload),
       });
 
@@ -131,12 +167,6 @@ export default function ProfilePage() {
     }
   };
 
-  const deleteMockBooking = (id: string) => {
-    const filtered = mockBookings.filter((b) => b._id !== id);
-    localStorage.setItem("mock_bookings", JSON.stringify(filtered));
-    setMockBookings(filtered);
-  };
-
   if (!session) {
     return (
       <div className="min-h-screen bg-mountain-black flex items-center justify-center">
@@ -148,8 +178,8 @@ export default function ProfilePage() {
   // Verification status check
   const verificationStatus = dbUser?.license?.status || "none"; // none, pending, verified, rejected
 
-  // Merge live and mock bookings
-  const allBookings = [...dbBookings, ...mockBookings].sort(
+  // Bookings list
+  const allBookings = [...dbBookings].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
@@ -364,7 +394,6 @@ export default function ProfilePage() {
           ) : allBookings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {allBookings.map((booking) => {
-                const isMock = booking._id.startsWith("mock_");
                 const vehicle = booking.vehicle;
                 const status = booking.status;
 
@@ -414,28 +443,27 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-white/5">
-                      {status === "approved" ? (
+                    <div className="mt-auto flex flex-col gap-2 pt-3 border-t border-white/5">
+                      {status === "approved" && (
                         <a
                           href={`https://wa.me/918888888888?text=Hi,%20my%20booking%20ID%20is%20${booking._id}%20for%20${vehicle.title}.%20Where%20should%20we%20meet%20for%20pickup?`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-[#25D366] hover:bg-[#20ba56] text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center"
+                          className="w-full bg-[#25D366] hover:bg-[#20ba56] text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
                           Chat on WhatsApp
                         </a>
-                      ) : (
-                        <span className="text-[10px] text-gray-500 italic">WhatsApp button unlocks upon host approval</span>
                       )}
-
-                      {isMock && (
+                      {status === "pending" && (
+                        <span className="text-[10px] text-gray-500 italic text-center w-full block mb-1">WhatsApp button unlocks upon host approval</span>
+                      )}
+                      {(status === "pending" || status === "approved") && (
                         <button
-                          onClick={() => deleteMockBooking(booking._id)}
-                          className="p-2 bg-white/5 border border-white/5 hover:bg-rose-500/20 hover:text-rose-400 rounded-xl transition-colors cursor-pointer"
-                          title="Delete Mock Booking"
+                          onClick={() => handleCancel(booking._id)}
+                          className="w-full bg-mountain-black border border-white/10 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-gray-400 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          Cancel Booking
                         </button>
                       )}
                     </div>

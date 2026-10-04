@@ -14,8 +14,88 @@ if ($method === 'GET') {
     
     if ($stmt->rowCount() > 0) {
         $profile = $stmt->fetch();
+        
+        // Map to frontend expectations
+        $formattedUser = [
+            'id' => $profile['id'],
+            'name' => $profile['name'],
+            'email' => $profile['email'],
+            'phone' => $profile['phone'],
+            'role' => $profile['role'],
+            'verified' => (bool)$profile['verified'],
+            'email_verified' => (bool)$profile['email_verified'],
+            'flagged' => (bool)$profile['flagged'],
+            'created_at' => $profile['created_at'],
+            'license' => [
+                'status' => $profile['license_status'],
+                'frontUrl' => $profile['license_front_url'],
+                'backUrl' => $profile['license_back_url'],
+                'selfieUrl' => $profile['selfie_url']
+            ],
+            'wishlist' => []
+        ];
+        
+        // Fetch wishlist items
+        $w_query = "SELECT v.* FROM wishlists w JOIN vehicles v ON w.vehicle_id = v.id WHERE w.user_id = ?";
+        $w_stmt = $conn->prepare($w_query);
+        $w_stmt->execute([$user['id']]);
+        $wishlistItems = $w_stmt->fetchAll();
+        
+        foreach ($wishlistItems as $v) {
+            $formattedUser['wishlist'][] = [
+                '_id' => $v['id'],
+                'title' => $v['title'],
+                'type' => $v['type'],
+                'brand' => $v['brand'],
+                'model' => $v['model'],
+                'pricePerDay' => (int)$v['price_per_day'],
+                'location' => [
+                    'area' => $v['location_area'],
+                    'city' => $v['location_city'],
+                    'state' => $v['location_state'],
+                    'country' => $v['location_country']
+                ],
+                'images' => $v['images'] ? json_decode($v['images'], true) : [],
+                'specs' => [
+                    'engineCc' => $v['spec_engine_cc'],
+                    'fuelType' => $v['spec_fuel_type'],
+                    'transmission' => $v['spec_transmission'],
+                    'seatingCapacity' => $v['spec_seating_capacity'],
+                    'deliveryAvailable' => (bool)$v['spec_delivery_available']
+                ]
+            ];
+        }
+        
+        // Let's also fetch bookings for this user since the frontend expects it here
+        $b_query = "SELECT b.*, v.title, v.brand, v.model, v.location_city as location FROM bookings b JOIN vehicles v ON b.vehicle_id = v.id WHERE b.user_id = ?";
+        $b_stmt = $conn->prepare($b_query);
+        $b_stmt->execute([$user['id']]);
+        $bookings = $b_stmt->fetchAll();
+        
+        // Map bookings to frontend expectation camelCase
+        $formattedBookings = [];
+        foreach ($bookings as $b) {
+            $formattedBookings[] = [
+                '_id' => $b['id'],
+                'fromDate' => $b['from_date'],
+                'toDate' => $b['to_date'],
+                'totalPrice' => $b['total_price'],
+                'status' => $b['status'],
+                'createdAt' => $b['created_at'],
+                'vehicle' => [
+                    'title' => $b['title'],
+                    'brand' => $b['brand'],
+                    'model' => $b['model'],
+                    'location' => $b['location']
+                ]
+            ];
+        }
+        
         http_response_code(200);
-        echo json_encode($profile);
+        echo json_encode([
+            "user" => $formattedUser,
+            "bookings" => $formattedBookings
+        ]);
     } else {
         http_response_code(404);
         echo json_encode(["message" => "User not found."]);

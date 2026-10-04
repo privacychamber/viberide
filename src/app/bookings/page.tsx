@@ -14,7 +14,6 @@ export default function BookingsPage() {
 
   const [loading, setLoading] = useState(true);
   const [dbBookings, setDbBookings] = useState<any[]>([]);
-  const [mockBookings, setMockBookings] = useState<any[]>([]);
 
   // Auto redirect if not logged in
   useEffect(() => {
@@ -27,12 +26,13 @@ export default function BookingsPage() {
     if (!session?.user?.id) return;
     setLoading(true);
 
-    // Fetch local mock bookings
-    const localBk = JSON.parse(localStorage.getItem("mock_bookings") || "[]");
-    setMockBookings(localBk);
-
     try {
-      const res = await fetch("/api/profile");
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/profile/index.php", {
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : ""
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setDbBookings(data.bookings || []);
@@ -44,17 +44,34 @@ export default function BookingsPage() {
     }
   };
 
+  const handleCancel = async (id: number) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/bookings/index.php?id=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({ status: "cancelled" })
+      });
+      if (res.ok) {
+        loadBookings();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to cancel booking.");
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+    }
+  };
+
   useEffect(() => {
     if (session?.user?.id) {
       loadBookings();
     }
   }, [session]);
-
-  const deleteMockBooking = (id: string) => {
-    const filtered = mockBookings.filter((b) => b._id !== id);
-    localStorage.setItem("mock_bookings", JSON.stringify(filtered));
-    setMockBookings(filtered);
-  };
 
   if (!session) {
     return (
@@ -64,7 +81,7 @@ export default function BookingsPage() {
     );
   }
 
-  const allBookings = [...dbBookings, ...mockBookings].sort(
+  const allBookings = [...dbBookings].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
@@ -85,7 +102,6 @@ export default function BookingsPage() {
         ) : allBookings.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {allBookings.map((booking) => {
-              const isMock = booking._id.startsWith("mock_");
               const vehicle = booking.vehicle;
               const status = booking.status;
 
@@ -135,28 +151,27 @@ export default function BookingsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-white/5">
-                    {status === "approved" ? (
+                  <div className="mt-auto flex flex-col gap-2 pt-3 border-t border-white/5">
+                    {status === "approved" && (
                       <a
                         href={`https://wa.me/918888888888?text=Hi,%20my%20booking%20ID%20is%20${booking._id}%20for%20the%20${vehicle.title}.%20Where%20should%20we%20meet%20for%20pickup?`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 bg-[#25D366] hover:bg-[#20ba56] text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center"
+                        className="w-full bg-[#25D366] hover:bg-[#20ba56] text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         Chat with Host
                       </a>
-                    ) : (
-                      <span className="text-[10px] text-gray-500 italic">WhatsApp unlock button will appear upon host approval</span>
                     )}
-
-                    {isMock && (
+                    {status === "pending" && (
+                      <span className="text-[10px] text-gray-500 italic text-center w-full block mb-1">WhatsApp unlock button will appear upon host approval</span>
+                    )}
+                    {(status === "pending" || status === "approved") && (
                       <button
-                        onClick={() => deleteMockBooking(booking._id)}
-                        className="p-2.5 bg-white/5 border border-white/5 hover:bg-rose-500/20 hover:text-rose-400 rounded-xl transition-colors cursor-pointer"
-                        title="Cancel/Delete Request"
+                        onClick={() => handleCancel(booking._id)}
+                        className="w-full bg-mountain-black border border-white/10 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-gray-400 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        Cancel Booking
                       </button>
                     )}
                   </div>
