@@ -8,7 +8,7 @@ $admin = requireRole('admin'); // Only admins allowed
 if ($method === 'GET') {
     $stmt = $conn->query("
         SELECT 
-            b.id, b.vehicle_id, b.user_id, b.from_date, b.to_date, b.total_price, b.status, b.created_at,
+            b.id, b.vehicle_id, b.user_id, b.from_date, b.to_date, b.total_price, b.commission_amount, b.owner_payout, b.status, b.payout_status, b.created_at,
             u.name AS renter_name, u.phone AS renter_phone, u.email AS renter_email,
             v.title AS vehicle_title,
             o.name AS owner_name, o.phone AS owner_phone
@@ -28,7 +28,10 @@ if ($method === 'GET') {
             'fromDate' => $b['from_date'],
             'toDate' => $b['to_date'],
             'totalPrice' => (float)$b['total_price'],
+            'commissionAmount' => (float)$b['commission_amount'],
+            'ownerPayout' => (float)$b['owner_payout'],
             'status' => $b['status'],
+            'payoutStatus' => $b['payout_status'],
             'createdAt' => $b['created_at'],
             'renter' => [
                 'name' => $b['renter_name'],
@@ -59,13 +62,14 @@ if ($method === 'PATCH') {
     }
     
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input || !isset($input['status'])) {
+    if (!$input) {
         http_response_code(400);
-        echo json_encode(["message" => "Status is required."]);
+        echo json_encode(["message" => "Invalid input."]);
         exit();
     }
     
-    $newStatus = $input['status'];
+    if (isset($input['status'])) {
+        $newStatus = $input['status'];
     
     // Validate target status
     $allowedStatuses = ['cancelled', 'approved', 'rejected', 'completed', 'pending'];
@@ -105,8 +109,26 @@ if ($method === 'PATCH') {
     $upStmt = $conn->prepare("UPDATE bookings SET status = ? WHERE id = ?");
     $upStmt->execute([$newStatus, $id]);
     
+    $payoutStatus = isset($input['payout_status']) ? $input['payout_status'] : null;
+    if ($payoutStatus && in_array($payoutStatus, ['pending', 'paid'])) {
+        $pStmt = $conn->prepare("UPDATE bookings SET payout_status = ? WHERE id = ?");
+        $pStmt->execute([$payoutStatus, $id]);
+    }
+    
     http_response_code(200);
-    echo json_encode(["message" => "Booking status updated successfully.", "status" => $newStatus]);
+        echo json_encode(["message" => "Booking status updated successfully.", "status" => $newStatus]);
+        exit();
+    }
+    
+    // If we only updated payout_status
+    if (isset($input['payout_status']) && !isset($input['status'])) {
+        http_response_code(200);
+        echo json_encode(["message" => "Payout status updated successfully."]);
+        exit();
+    }
+    
+    http_response_code(400);
+    echo json_encode(["message" => "No valid updates provided."]);
     exit();
 }
 

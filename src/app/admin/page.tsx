@@ -219,6 +219,28 @@ export default function AdminConsole() {
     }
   };
 
+  const handleUpdatePayoutStatus = async (bookingId: string, payoutStatus: string) => {
+    if (payoutStatus === "paid" && !confirm("Are you sure you want to mark this payout as paid?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/admin/bookings.php?id=${bookingId}`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({ payout_status: payoutStatus }),
+      });
+
+      if (res.ok) {
+        triggerMessage(`Payout status updated to ${payoutStatus}.`);
+        await fetchBookings();
+      }
+    } catch (error) {
+      console.error("Failed to update payout status:", error);
+    }
+  };
+
   const fetchBookings = async () => {
     setLoadingBookings(true);
     try {
@@ -951,7 +973,10 @@ export default function AdminConsole() {
                       </div>
                       <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t border-white/5">
                         <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {new Date(b.fromDate).toLocaleDateString()} &rarr; {new Date(b.toDate).toLocaleDateString()}</span>
-                        <span className="font-bold text-snow-white">₹{b.totalPrice}</span>
+                        <span className="font-bold text-snow-white">Gross: ₹{b.totalPrice}</span>
+                        <span className="font-bold text-sunset-orange">Fee: ₹{b.commissionAmount}</span>
+                        <span className="font-bold text-emerald-400">Payout: ₹{b.ownerPayout}</span>
+                        <span className={`font-bold uppercase ${b.payoutStatus === 'paid' ? 'text-emerald-400' : 'text-amber-400'}`}>[{b.payoutStatus || 'PENDING'}]</span>
                       </div>
                     </div>
                     
@@ -962,6 +987,16 @@ export default function AdminConsole() {
                           className="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex-grow text-center"
                         >
                           Cancel Booking
+                        </button>
+                      )}
+                      
+                      {/* Payout controls */}
+                      {b.status === "completed" && b.payoutStatus !== "paid" && (
+                        <button
+                          onClick={() => handleUpdatePayoutStatus(b.id, "paid")}
+                          className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex-grow text-center"
+                        >
+                          Mark Paid
                         </button>
                       )}
                     </div>

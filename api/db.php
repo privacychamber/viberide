@@ -11,6 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Require global configuration
+require_once __DIR__ . '/config.php';
+
 // Helper to load .env securely without external dependencies
 function loadEnv($path) {
     if(!file_exists($path)) return;

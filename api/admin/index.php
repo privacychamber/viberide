@@ -93,13 +93,15 @@ if ($method === 'GET') {
     }
 
     // 3. Fetch Bookings Stats
-    $b_stmt = $conn->query("SELECT SUM(total_price) as gross_revenue, COUNT(id) as total_bookings FROM bookings");
+    $b_stmt = $conn->query("SELECT 
+        SUM(CASE WHEN status = 'completed' THEN commission_amount ELSE 0 END) as total_commission, 
+        COUNT(id) as total_bookings 
+        FROM bookings");
     $b_stats = $b_stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($b_stats) {
         $response['stats']['totalBookings'] = (int)$b_stats['total_bookings'];
-        // Commission is 10%
-        $response['stats']['totalCommissions'] = (float)$b_stats['gross_revenue'] * 0.10;
+        $response['stats']['totalCommissions'] = (float)$b_stats['total_commission'];
     }
 
     http_response_code(200);

@@ -590,8 +590,9 @@ export default function OwnerDashboard() {
                         <div className="text-xs text-gray-400 mt-2 space-y-1">
                           <p><strong className="text-snow-white">Renter:</strong> {booking.user.name} ({booking.user.phone})</p>
                           <p><strong className="text-snow-white">Dates:</strong> {new Date(booking.fromDate).toLocaleDateString()} to {new Date(booking.toDate).toLocaleDateString()}</p>
-                          <p><strong className="text-snow-white">Total Payout:</strong> <span className="text-emerald-400 font-bold">₹{booking.totalPrice}</span></p>
+                          <p><strong className="text-snow-white">Payout:</strong> <span className="text-emerald-400 font-bold">₹{booking.ownerPayout || booking.totalPrice}</span></p>
                           <p><strong className="text-snow-white">Status:</strong> <span className={`font-bold ${booking.status === 'approved' ? 'text-emerald-400' : booking.status === 'cancelled' ? 'text-rose-400' : booking.status === 'rejected' ? 'text-rose-400' : 'text-gray-400'}`}>{booking.status.toUpperCase()}</span></p>
+                          <p><strong className="text-snow-white">Payout Status:</strong> <span className={`font-bold ${booking.payoutStatus === 'paid' ? 'text-emerald-400' : 'text-amber-400'}`}>{booking.payoutStatus?.toUpperCase() || 'PENDING'}</span></p>
                         </div>
                       </div>
                       

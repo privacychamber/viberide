@@ -64,6 +64,11 @@ elseif ($method === 'POST') {
         
         $total_price = $days * (float)$vehicle['price_per_day'];
         
+        // Calculate commission and payout (Phase 6D)
+        $rate = defined('PLATFORM_COMMISSION_RATE') ? PLATFORM_COMMISSION_RATE : 0.10;
+        $commission = $total_price * $rate;
+        $payout = $total_price - $commission;
+        
         // Basic conflict check
         $conflict_query = "SELECT id FROM bookings WHERE vehicle_id = ? AND status IN ('pending', 'approved') AND ((from_date <= ? AND to_date >= ?) OR (from_date <= ? AND to_date >= ?))";
         $c_stmt = $conn->prepare($conflict_query);
@@ -75,7 +80,7 @@ elseif ($method === 'POST') {
             exit();
         }
         
-        $query = "INSERT INTO bookings (vehicle_id, user_id, from_date, to_date, total_price) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO bookings (vehicle_id, user_id, from_date, to_date, total_price, commission_amount, owner_payout) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
         
         if ($stmt->execute([
@@ -83,7 +88,9 @@ elseif ($method === 'POST') {
             $user['id'],
             $data->fromDate,
             $data->toDate,
-            $total_price
+            $total_price,
+            $commission,
+            $payout
         ])) {
             http_response_code(201);
             

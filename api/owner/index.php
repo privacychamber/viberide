@@ -45,7 +45,7 @@ if ($method === 'GET') {
     
     foreach ($bookings_raw as $b) {
         if ($b['status'] === 'approved' || $b['status'] === 'completed') {
-            $earnings += (float)$b['total_price'];
+            $earnings += (float)$b['owner_payout'];
         }
         
         $bookings[] = [
@@ -53,6 +53,8 @@ if ($method === 'GET') {
             'fromDate' => $b['from_date'],
             'toDate' => $b['to_date'],
             'totalPrice' => (int)$b['total_price'],
+            'ownerPayout' => (float)$b['owner_payout'],
+            'payoutStatus' => $b['payout_status'],
             'status' => $b['status'],
             'createdAt' => $b['created_at'],
             'vehicle' => [
